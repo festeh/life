@@ -99,7 +99,7 @@ DATABASE_PATH=./data/life.db
 GOOGLE_CLIENT_ID=your-client-id-here
 GOOGLE_CLIENT_SECRET=your-client-secret-here
 GOOGLE_REDIRECT_URL=http://localhost:8080/auth/google/callback
-ALLOWED_EMAIL=siboky@gmail.com
+ALLOWED_EMAIL=your-email@gmail.com
 
 JWT_SECRET=your-super-secret-key-change-this-in-production
 JWT_EXPIRATION=24h
@@ -153,7 +153,7 @@ The frontend will be available at `http://localhost:5173`
 
 1. Open your browser to `http://localhost:5173`
 2. Click "Login with Google"
-3. Authenticate with siboky@gmail.com
+3. Authenticate with your configured email
 4. Start tracking your habits!
 
 ## Development

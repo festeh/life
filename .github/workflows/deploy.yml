@@ -1,0 +1,97 @@
+name: Deploy to Ionos
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+          cache-dependency-path: backend/go.sum
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build Backend
+        run: |
+          cd backend
+          go mod download
+          CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o life-server cmd/server/main.go
+
+      - name: Build Frontend
+        run: |
+          cd frontend
+          npm ci
+          npm run build
+
+      - name: Deploy to Ionos Server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "backend/life-server,backend/migrations,frontend/dist"
+          target: "/opt/life"
+          strip_components: 0
+
+      - name: Setup and Restart Services
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          BACKEND_PORT: ${{ secrets.BACKEND_PORT }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: BACKEND_PORT
+          script: |
+            # Create necessary directories
+            mkdir -p /opt/life/backend/data
+
+            # Set permissions
+            chmod +x /opt/life/backend/life-server
+
+            # Update PORT in .env file if it exists
+            if [ -f /opt/life/backend/.env ]; then
+              sed -i "s/^PORT=.*/PORT=${BACKEND_PORT}/" /opt/life/backend/.env
+            fi
+
+            # Create systemd service for backend if it doesn't exist
+            if [ ! -f /etc/systemd/system/life-backend.service ]; then
+              cat > /etc/systemd/system/life-backend.service << 'EOF'
+            [Unit]
+            Description=Life Habit Tracker Backend
+            After=network.target
+
+            [Service]
+            Type=simple
+            User=root
+            WorkingDirectory=/opt/life/backend
+            ExecStart=/opt/life/backend/life-server
+            Restart=always
+            RestartSec=10
+            EnvironmentFile=/opt/life/backend/.env
+
+            [Install]
+            WantedBy=multi-user.target
+            EOF
+              systemctl daemon-reload
+              systemctl enable life-backend
+            fi
+
+            # Restart backend service
+            systemctl restart life-backend
+            systemctl status life-backend --no-pager
+
+            echo "Deployment completed successfully!"
