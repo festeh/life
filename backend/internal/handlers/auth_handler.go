@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/festeh/life/backend/internal/auth"
 	"github.com/festeh/life/backend/internal/config"
@@ -72,10 +73,8 @@ func (h *AuthHandler) GoogleCallback(c *gin.Context) {
 	}
 
 	// Redirect to frontend with token
-	frontendURL := h.config.Server.Environment
-	if frontendURL == "production" {
-		frontendURL = "https://your-frontend-domain.com"
-	} else {
+	frontendURL := os.Getenv("FRONTEND_URL")
+	if frontendURL == "" {
 		frontendURL = "http://localhost:5173"
 	}
 
