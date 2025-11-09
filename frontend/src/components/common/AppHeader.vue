@@ -6,6 +6,7 @@
         <RouterLink to="/" class="nav-link">Dashboard</RouterLink>
         <RouterLink to="/habits" class="nav-link">Habits</RouterLink>
         <RouterLink to="/statistics" class="nav-link">Statistics</RouterLink>
+        <RouterLink to="/settings" class="nav-link">Settings</RouterLink>
       </nav>
       <div class="user-menu">
         <span class="user-name">{{ userName }}</span>
@@ -33,7 +34,7 @@ const handleLogout = () => {
 
 <style scoped>
 .header {
-  background: white;
+  background: var(--card-bg);
   box-shadow: var(--shadow);
   margin-bottom: 20px;
 }
@@ -86,5 +87,6 @@ const handleLogout = () => {
 
 .user-name {
   font-weight: 500;
+  color: var(--text);
 }
 </style>
