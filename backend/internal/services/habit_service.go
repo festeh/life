@@ -34,7 +34,7 @@ func (s *HabitService) GetAll(userID string, includeArchived bool) ([]models.Hab
 	}
 	defer rows.Close()
 
-	var habits []models.Habit
+	habits := []models.Habit{}
 	for rows.Next() {
 		var habit models.Habit
 		err := rows.Scan(&habit.ID, &habit.UserID, &habit.Name, &habit.Description, &habit.Category,

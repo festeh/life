@@ -112,7 +112,7 @@ func (s *StatsService) GetHabitStats(habitID, userID string, period string) (*mo
 	}
 	defer rows.Close()
 
-	var dailyData []models.DailyData
+	dailyData := []models.DailyData{}
 	totalCheckIns := 0
 	for rows.Next() {
 		var data models.DailyData
@@ -191,7 +191,7 @@ func (s *StatsService) GetCalendarData(userID string, year int, habitID string) 
 	}
 
 	// Generate all days of the year
-	var calendarDays []models.CalendarDay
+	calendarDays := []models.CalendarDay{}
 	start, _ := time.Parse("2006-01-02", startDate)
 	end, _ := time.Parse("2006-01-02", endDate)
 
@@ -244,7 +244,7 @@ func (s *StatsService) getHabitStats(userID string) ([]models.HabitStat, error) 
 		return nil, err
 	}
 
-	var habitStats []models.HabitStat
+	habitStats := []models.HabitStat{}
 	for _, habit := range habits {
 		streak, err := s.habitService.GetStreak(habit.ID, userID)
 		if err != nil {

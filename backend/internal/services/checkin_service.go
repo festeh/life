@@ -106,7 +106,7 @@ func (s *CheckInService) GetAll(userID string, habitID, startDate, endDate strin
 	}
 	defer rows.Close()
 
-	var checkIns []models.CheckIn
+	checkIns := []models.CheckIn{}
 	for rows.Next() {
 		var checkIn models.CheckIn
 		err := rows.Scan(&checkIn.ID, &checkIn.HabitID, &checkIn.UserID, &checkIn.Date,
@@ -141,7 +141,7 @@ func (s *CheckInService) GetByHabit(habitID, userID string, limit int) ([]models
 	}
 	defer rows.Close()
 
-	var checkIns []models.CheckIn
+	checkIns := []models.CheckIn{}
 	for rows.Next() {
 		var checkIn models.CheckIn
 		err := rows.Scan(&checkIn.ID, &checkIn.HabitID, &checkIn.UserID, &checkIn.Date,
