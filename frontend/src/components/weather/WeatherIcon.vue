@@ -1,24 +1,20 @@
 <template>
   <div class="weather-icon-wrapper" :style="wrapperStyle">
-    <Suspense>
-      <template #default>
-        <component
-          :is="iconComponent"
-          class="weather-icon-svg"
-          :style="iconStyle"
-        />
-      </template>
-      <template #fallback>
-        <div class="weather-icon-fallback" :style="fallbackStyle">
-          {{ emoji }}
-        </div>
-      </template>
-    </Suspense>
+    <div
+      v-if="svgContent"
+      class="weather-icon-svg"
+      :style="iconStyle"
+      v-html="svgContent"
+    />
+    <div v-else class="weather-icon-fallback" :style="fallbackStyle">
+      {{ emoji }}
+    </div>
   </div>
 </template>
 
 <script setup>
-import { defineAsyncComponent, computed, onErrorCaptured, ref } from 'vue'
+import { computed } from 'vue'
+import { iconMap } from './WeatherIconMap.js'
 
 const props = defineProps({
   icon: {
@@ -35,22 +31,14 @@ const props = defineProps({
   }
 })
 
-const hasError = ref(false)
-
-// Dynamically import SVG icon with lazy loading
-const iconComponent = defineAsyncComponent({
-  loader: () => import(`@bybas/weather-icons/production/fill/${props.icon}.svg`),
-  onError(error) {
-    console.warn(`Failed to load weather icon: ${props.icon}`, error)
-    hasError.value = true
+// Get SVG content from icon map
+const svgContent = computed(() => {
+  const icon = iconMap[props.icon]
+  if (!icon) {
+    console.warn(`Weather icon not found: ${props.icon}, using emoji fallback`)
+    return null
   }
-})
-
-// Handle errors and show emoji fallback
-onErrorCaptured((error) => {
-  console.warn('Weather icon error:', error)
-  hasError.value = true
-  return false
+  return icon
 })
 
 // Computed styles
@@ -85,6 +73,11 @@ const fallbackStyle = computed(() => ({
 .weather-icon-svg {
   /* Ensure SVG fills the container */
   object-fit: contain;
+}
+
+.weather-icon-svg :deep(svg) {
+  width: 100%;
+  height: 100%;
 }
 
 .weather-icon-fallback {
