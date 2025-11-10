@@ -13,12 +13,17 @@ export const useCheckInsStore = defineStore('checkIns', {
     async toggleCheckIn(habitId, date = format(new Date(), 'yyyy-MM-dd'), completed = true) {
       try {
         const existing = this.findCheckIn(habitId, date)
+        console.log('Found existing check-in:', existing)
 
-        await checkInsService.create({
+        const payload = {
           habit_id: habitId,
           date: date,
           completed: existing ? !existing.completed : completed
-        })
+        }
+        console.log('Creating check-in with payload:', payload)
+
+        const result = await checkInsService.create(payload)
+        console.log('Check-in created:', result)
 
         await this.fetchTodayCheckIns()
       } catch (error) {
@@ -31,6 +36,7 @@ export const useCheckInsStore = defineStore('checkIns', {
       try {
         this.loading = true
         this.todayCheckIns = await checkInsService.getToday()
+        console.log('Fetched today check-ins:', this.todayCheckIns)
       } catch (error) {
         console.error('Failed to fetch today check-ins:', error)
       } finally {
@@ -40,7 +46,7 @@ export const useCheckInsStore = defineStore('checkIns', {
 
     findCheckIn(habitId, date) {
       return this.todayCheckIns.find(
-        ci => ci.habit_id === habitId && ci.date === date
+        ci => ci.habit_id === habitId && ci.date.split('T')[0] === date
       )
     },
 

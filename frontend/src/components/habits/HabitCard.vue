@@ -6,10 +6,13 @@
         <h3 :style="nameStyle">{{ habit.name }}</h3>
       </div>
       <button
+        type="button"
         @click="handleToggle"
         :style="checkButtonStyle"
+        :disabled="loading"
       >
-        <span v-if="isChecked">✓</span>
+        <span v-if="loading">...</span>
+        <span v-else-if="isChecked">✓</span>
       </button>
     </div>
 
@@ -24,7 +27,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useCheckInsStore } from '@/stores/checkins'
 import { useTheme } from '@/composables/useTheme'
 import { format } from 'date-fns'
@@ -40,16 +43,26 @@ const emit = defineEmits(['check-in'])
 
 const checkInsStore = useCheckInsStore()
 const { tokens } = useTheme()
+const loading = ref(false)
 
 const isChecked = computed(() => checkInsStore.isCheckedToday(props.habit.id))
 
 const handleToggle = async () => {
+  if (loading.value) return
+
+  loading.value = true
+  console.log('Toggling habit:', props.habit.id, 'Current state:', isChecked.value)
+
   try {
     const today = format(new Date(), 'yyyy-MM-dd')
     await checkInsStore.toggleCheckIn(props.habit.id, today)
+    console.log('Toggle successful, new state:', checkInsStore.isCheckedToday(props.habit.id))
     emit('check-in')
   } catch (error) {
     console.error('Failed to toggle check-in:', error)
+    alert('Failed to update habit. Please try again.')
+  } finally {
+    loading.value = false
   }
 }
 
@@ -96,12 +109,13 @@ const checkButtonStyle = computed(() => ({
   borderRadius: '50%',
   background: isChecked.value ? tokens.value.colors.success : tokens.value.colors.bgSecondary,
   color: isChecked.value ? 'white' : tokens.value.colors.text,
-  cursor: 'pointer',
+  cursor: loading.value ? 'not-allowed' : 'pointer',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   fontSize: tokens.value.typography.sizes.xl,
-  transition: tokens.value.transitions.normal
+  transition: tokens.value.transitions.normal,
+  opacity: loading.value ? 0.6 : 1
 }))
 </script>
 
