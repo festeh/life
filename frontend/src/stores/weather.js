@@ -31,16 +31,16 @@ export const useWeatherStore = defineStore('weather', {
       const minutes = Math.floor(diff / 60000)
 
       // Show relative time if less than 60 minutes
-      if (minutes < 1) return 'Updated less than a minute ago'
-      if (minutes === 1) return 'Updated 1 minute ago'
-      if (minutes < 60) return `Updated ${minutes} minutes ago`
+      if (minutes < 1) return 'Less than a minute ago'
+      if (minutes === 1) return '1 minute ago'
+      if (minutes < 60) return `${minutes} minutes ago`
 
       // For older times, show absolute time
       const timeStr = state.lastUpdated.toLocaleTimeString([], {
         hour: '2-digit',
         minute: '2-digit'
       })
-      return `Updated at ${timeStr}`
+      return `At ${timeStr}`
     }
   },
 

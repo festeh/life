@@ -17,12 +17,8 @@
 
       <div class="weather-details">
         <div :style="detailStyle">
-          <span :style="detailLabelStyle">Wind:</span>
+          <span :style="detailLabelStyle">Wind speed</span>
           <span :style="detailValueStyle">{{ current.windSpeed }} km/h</span>
-        </div>
-        <div :style="detailStyle">
-          <span :style="detailLabelStyle">Location:</span>
-          <span :style="detailValueStyle">Berlin Spandau</span>
         </div>
       </div>
 
