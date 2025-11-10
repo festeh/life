@@ -19,11 +19,11 @@
             :class="['theme-option', { active: theme === themeOption.value }]"
             :style="themeButtonStyle(themeOption.value)"
           >
-            <div :class="['theme-preview', themeOption.value]">
-              <div class="preview-header"></div>
+            <div class="theme-preview" :style="getThemePreviewStyle(themeOption.value)">
+              <div class="preview-header" :style="getThemePreviewHeaderStyle(themeOption.value)"></div>
               <div class="preview-content">
-                <div class="preview-block"></div>
-                <div class="preview-block"></div>
+                <div class="preview-block" :style="getThemePreviewBlockStyle(themeOption.value)"></div>
+                <div class="preview-block" :style="getThemePreviewBlockStyle(themeOption.value)"></div>
               </div>
             </div>
             <span class="theme-name" :style="themeLabelStyle(themeOption.value)">{{ themeOption.label }}</span>
@@ -57,6 +57,7 @@ import { computed } from 'vue'
 import { useThemeStore } from '@/stores/theme'
 import { useAuthStore } from '@/stores/auth'
 import { useTheme } from '@/composables/useTheme'
+import { colorPalettes } from '@/design/tokens'
 
 const themeStore = useThemeStore()
 const authStore = useAuthStore()
@@ -69,11 +70,44 @@ const userName = computed(() => authStore.user?.name || '')
 const themes = [
   { value: 'light', label: 'Light' },
   { value: 'dark', label: 'Dark' },
-  { value: 'auto', label: 'Auto' }
+  { value: 'ocean', label: 'Ocean' },
+  { value: 'forest', label: 'Forest' },
+  { value: 'sunset', label: 'Sunset' },
+  { value: 'purple', label: 'Purple' },
+  { value: 'dracula', label: 'Dracula' },
+  { value: 'nord', label: 'Nord' },
+  { value: 'monokai', label: 'Monokai' },
+  { value: 'solarized', label: 'Solarized' },
+  { value: 'cyberpunk', label: 'Cyberpunk' },
+  { value: 'coffee', label: 'Coffee' },
+  { value: 'midnight', label: 'Midnight' },
+  { value: 'rose', label: 'Rosé' }
 ]
 
 const selectTheme = (newTheme) => {
   themeStore.setTheme(newTheme)
+}
+
+const getThemePreviewStyle = (themeValue) => {
+  const palette = colorPalettes[themeValue]
+  return {
+    background: palette.bgSecondary,
+    borderColor: palette.border
+  }
+}
+
+const getThemePreviewHeaderStyle = (themeValue) => {
+  const palette = colorPalettes[themeValue]
+  return {
+    background: palette.bg
+  }
+}
+
+const getThemePreviewBlockStyle = (themeValue) => {
+  const palette = colorPalettes[themeValue]
+  return {
+    background: palette.primary
+  }
 }
 
 const themeButtonStyle = (themeValue) => {
@@ -165,8 +199,9 @@ const descriptionStyle = computed(() => ({
 }
 
 .theme-picker {
-  display: flex;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 12px;
   margin-top: 16px;
 }
 
@@ -185,40 +220,16 @@ const descriptionStyle = computed(() => ({
 }
 
 .theme-preview {
-  width: 100px;
+  width: 100%;
   height: 60px;
   border-radius: 4px;
   overflow: hidden;
-  border: 1px solid #ddd;
-}
-
-.theme-preview.light {
-  background: #ffffff;
-}
-
-.theme-preview.dark {
-  background: #1a1a1a;
-}
-
-.theme-preview.auto {
-  background: linear-gradient(to right, #ffffff 50%, #1a1a1a 50%);
+  border: 1px solid;
 }
 
 .preview-header {
   height: 12px;
   margin-bottom: 4px;
-}
-
-.theme-preview.light .preview-header {
-  background: #f5f5f5;
-}
-
-.theme-preview.dark .preview-header {
-  background: #2a2a2a;
-}
-
-.theme-preview.auto .preview-header {
-  background: linear-gradient(to right, #f5f5f5 50%, #2a2a2a 50%);
 }
 
 .preview-content {
@@ -231,21 +242,5 @@ const descriptionStyle = computed(() => ({
 .preview-block {
   height: 8px;
   border-radius: 2px;
-}
-
-.theme-preview.light .preview-block {
-  background: #e0e0e0;
-}
-
-.theme-preview.dark .preview-block {
-  background: #3a3a3a;
-}
-
-.theme-preview.auto .preview-block:first-child {
-  background: linear-gradient(to right, #e0e0e0 50%, #3a3a3a 50%);
-}
-
-.theme-preview.auto .preview-block:last-child {
-  background: linear-gradient(to right, #d0d0d0 50%, #4a4a4a 50%);
 }
 </style>
