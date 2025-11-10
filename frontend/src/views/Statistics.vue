@@ -1,5 +1,5 @@
 <template>
-  <div class="statistics-page">
+  <div class="statistics-page" :style="pageStyle">
     <h1 :style="headingStyle">Statistics</h1>
 
     <div v-if="loading" :style="loadingStyle">Loading...</div>
@@ -88,6 +88,11 @@ onMounted(async () => {
 })
 
 // Computed styles using design tokens
+const pageStyle = computed(() => ({
+  minHeight: '100vh',
+  background: tokens.value.colors.bg
+}))
+
 const headingStyle = computed(() => ({
   fontSize: tokens.value.typography.sizes['3xl'],
   color: tokens.value.colors.text,

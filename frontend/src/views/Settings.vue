@@ -1,5 +1,5 @@
 <template>
-  <div class="settings">
+  <div class="settings" :style="settingsPageStyle">
     <h1 :style="headingStyle">Settings</h1>
 
     <div class="settings-section" :style="sectionStyle">
@@ -97,6 +97,11 @@ const themeLabelStyle = (themeValue) => {
 }
 
 // Computed styles using design tokens
+const settingsPageStyle = computed(() => ({
+  minHeight: '100vh',
+  background: tokens.value.colors.bg
+}))
+
 const headingStyle = computed(() => ({
   color: tokens.value.colors.text,
   fontSize: tokens.value.typography.sizes['3xl'],

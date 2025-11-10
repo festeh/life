@@ -1,5 +1,5 @@
 <template>
-  <div class="dashboard">
+  <div class="dashboard" :style="dashboardStyle">
     <h1 :style="headingStyle">Dashboard</h1>
 
     <div v-if="loading" :style="loadingStyle">Loading...</div>
@@ -84,6 +84,11 @@ const handleCheckIn = async () => {
 }
 
 // Computed styles
+const dashboardStyle = computed(() => ({
+  minHeight: '100vh',
+  background: tokens.value.colors.bg
+}))
+
 const headingStyle = computed(() => ({
   fontSize: tokens.value.typography.sizes['3xl'],
   marginBottom: tokens.value.spacing.xl,

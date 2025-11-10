@@ -1,5 +1,5 @@
 <template>
-  <div class="habits-page">
+  <div class="habits-page" :style="pageStyle">
     <div class="header">
       <h1 :style="headingStyle">My Habits</h1>
       <button @click="showModal = true" :style="primaryButtonStyle">+ New Habit</button>
@@ -139,6 +139,11 @@ const closeModal = () => {
 }
 
 // Computed styles using design tokens
+const pageStyle = computed(() => ({
+  minHeight: '100vh',
+  background: tokens.value.colors.bg
+}))
+
 const headingStyle = computed(() => ({
   fontSize: tokens.value.typography.sizes['3xl'],
   color: tokens.value.colors.text,
