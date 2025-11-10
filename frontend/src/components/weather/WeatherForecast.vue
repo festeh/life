@@ -1,7 +1,5 @@
 <template>
   <div :style="forecastCardStyle">
-    <h3 :style="headingStyle">5-Day Forecast</h3>
-
     <div v-if="loading" :style="loadingStyle">Loading forecast...</div>
 
     <div v-else-if="forecast.length > 0" class="forecast-container">
@@ -52,14 +50,9 @@ const forecastCardStyle = computed(() => ({
   background: tokens.value.colors.bgSecondary,
   padding: tokens.value.spacing.xl,
   borderRadius: tokens.value.radius.xl,
-  boxShadow: tokens.value.colors.shadow
-}))
-
-const headingStyle = computed(() => ({
-  fontSize: tokens.value.typography.sizes.xl,
-  fontWeight: tokens.value.typography.weights.semibold,
-  color: tokens.value.colors.text,
-  margin: `0 0 ${tokens.value.spacing.lg} 0`
+  boxShadow: tokens.value.colors.shadow,
+  width: 'fit-content',
+  maxWidth: '100%'
 }))
 
 const loadingStyle = computed(() => ({
@@ -70,10 +63,10 @@ const loadingStyle = computed(() => ({
 }))
 
 const dayCardStyle = computed(() => ({
-  background: tokens.value.colors.bg,
+  background: 'transparent',
   padding: tokens.value.spacing.md,
   borderRadius: tokens.value.radius.lg,
-  border: `1px solid ${tokens.value.colors.border}`,
+  borderRight: `1px solid ${tokens.value.colors.border}`,
   textAlign: 'center',
   display: 'flex',
   flexDirection: 'column',
@@ -113,13 +106,17 @@ const conditionStyle = computed(() => ({
 <style scoped>
 .forecast-container {
   display: flex;
-  gap: 12px;
+  gap: 0;
   overflow-x: auto;
   padding-bottom: 8px;
 }
 
 .forecast-day {
   flex-shrink: 0;
+}
+
+.forecast-day:last-child {
+  border-right: none !important;
 }
 
 /* Hide scrollbar but keep functionality */

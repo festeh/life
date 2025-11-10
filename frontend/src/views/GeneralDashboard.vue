@@ -2,8 +2,7 @@
   <div class="general-dashboard" :style="dashboardStyle">
     <!-- Weather Section -->
     <section :style="sectionStyle">
-      <h2 :style="subHeadingStyle">Weather</h2>
-      <div class="weather-grid">
+      <div class="weather-widgets">
         <WeatherCurrent />
         <WeatherForecast />
       </div>
@@ -36,27 +35,16 @@ const dashboardStyle = computed(() => ({
   background: tokens.value.colors.bg
 }))
 
-const subHeadingStyle = computed(() => ({
-  fontSize: tokens.value.typography.sizes['2xl'],
-  margin: `0 0 ${tokens.value.spacing.lg} 0`,
-  color: tokens.value.colors.text
-}))
-
 const sectionStyle = computed(() => ({
   marginBottom: tokens.value.spacing.xl
 }))
 </script>
 
 <style scoped>
-.weather-grid {
-  display: grid;
-  gap: 20px;
-  grid-template-columns: 1fr;
-}
-
-@media (min-width: 1024px) {
-  .weather-grid {
-    grid-template-columns: 1fr 1fr;
-  }
+.weather-widgets {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  flex-wrap: wrap;
 }
 </style>

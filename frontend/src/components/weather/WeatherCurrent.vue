@@ -8,33 +8,36 @@
 
     <div v-else-if="current" class="weather-content">
       <div class="weather-main">
-        <WeatherIcon
-          :icon="current.iconName"
-          :emoji="current.icon"
-          size="64px"
-        />
-        <div class="weather-temp">
-          <span :style="temperatureStyle">{{ current.temperature }}°C</span>
-          <span :style="descriptionStyle">{{ current.description }}</span>
+        <div class="weather-icon-container">
+          <WeatherIcon
+            :icon="current.iconName"
+            :emoji="current.icon"
+            size="120px"
+          />
         </div>
-      </div>
-
-      <div class="weather-details">
-        <div v-if="current.feelsLike !== null" :style="detailStyle">
-          <span :style="detailLabelStyle">Feels like</span>
-          <span :style="detailValueStyle">{{ current.feelsLike }}°C</span>
-        </div>
-        <div :style="detailStyle">
-          <span :style="detailLabelStyle">Wind speed</span>
-          <span :style="detailValueStyle">{{ current.windSpeed }} km/h</span>
-        </div>
-        <div v-if="current.humidity !== null" :style="detailStyle">
-          <span :style="detailLabelStyle">Humidity</span>
-          <span :style="detailValueStyle">{{ current.humidity }}%</span>
-        </div>
-        <div v-if="current.uvIndex !== null && current.uvIndex >= 6" :style="detailStyle">
-          <span :style="detailLabelStyle">UV Index</span>
-          <span :style="detailValueStyle">{{ current.uvIndex }}</span>
+        <div class="weather-details-container">
+          <div class="weather-temp-description">
+            <span :style="temperatureStyle">{{ current.temperature }}°C</span>
+            <span :style="descriptionStyle">{{ current.description }}</span>
+          </div>
+          <div class="weather-details">
+            <div v-if="current.feelsLike !== null">
+              <div :style="detailLabelStyle">Feels like</div>
+              <div :style="detailValueStyle">{{ current.feelsLike }}°C</div>
+            </div>
+            <div>
+              <div :style="detailLabelStyle">Wind</div>
+              <div :style="detailValueStyle">{{ current.windSpeed }} km/h</div>
+            </div>
+            <div v-if="current.humidity !== null">
+              <div :style="detailLabelStyle">Humidity</div>
+              <div :style="detailValueStyle">{{ current.humidity }}%</div>
+            </div>
+            <div v-if="current.uvIndex !== null && current.uvIndex >= 6">
+              <div :style="detailLabelStyle">UV Index</div>
+              <div :style="detailValueStyle">{{ current.uvIndex }}</div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -64,7 +67,9 @@ const weatherCardStyle = computed(() => ({
   background: tokens.value.colors.bgSecondary,
   padding: tokens.value.spacing.xl,
   borderRadius: tokens.value.radius.xl,
-  boxShadow: tokens.value.colors.shadow
+  boxShadow: tokens.value.colors.shadow,
+  width: 'fit-content',
+  maxWidth: '100%'
 }))
 
 const loadingStyle = computed(() => ({
@@ -95,22 +100,15 @@ const descriptionStyle = computed(() => ({
   marginTop: tokens.value.spacing.xs
 }))
 
-const detailStyle = computed(() => ({
-  display: 'flex',
-  justifyContent: 'space-between',
-  padding: `${tokens.value.spacing.sm} 0`,
-  borderBottom: `1px solid ${tokens.value.colors.border}`
-}))
-
 const detailLabelStyle = computed(() => ({
   color: tokens.value.colors.textSecondary,
-  fontSize: tokens.value.typography.sizes.sm
+  fontSize: tokens.value.typography.sizes.xs
 }))
 
 const detailValueStyle = computed(() => ({
   color: tokens.value.colors.text,
-  fontSize: tokens.value.typography.sizes.sm,
-  fontWeight: tokens.value.typography.weights.medium
+  fontSize: tokens.value.typography.sizes.base,
+  fontWeight: tokens.value.typography.weights.semibold
 }))
 
 const timestampStyle = computed(() => ({
@@ -130,16 +128,28 @@ const timestampStyle = computed(() => ({
 
 .weather-main {
   display: flex;
-  align-items: center;
   gap: 24px;
 }
 
-.weather-temp {
+.weather-icon-container {
+  flex-shrink: 0;
+}
+
+.weather-details-container {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.weather-temp-description {
+  display: flex;
+  flex-direction: column;
 }
 
 .weather-details {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
 }
 </style>
