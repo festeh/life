@@ -10,7 +10,6 @@
 
     <!-- Transit Section -->
     <section :style="sectionStyle">
-      <h2 :style="subHeadingStyle">Public Transport</h2>
       <div class="transit-grid">
         <BusDepartures />
         <TrainDepartures />
