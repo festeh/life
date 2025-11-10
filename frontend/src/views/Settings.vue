@@ -7,6 +7,25 @@
 
       <div class="setting-item">
         <div class="setting-info">
+          <h3 class="setting-label" :style="labelStyle">Font Size</h3>
+          <p :style="descriptionStyle">Adjust text size for better readability</p>
+        </div>
+
+        <div class="font-size-picker">
+          <button
+            v-for="sizeOption in fontSizes"
+            :key="sizeOption.value"
+            @click="selectFontSize(sizeOption.value)"
+            :class="['size-option', { active: fontSize === sizeOption.value }]"
+            :style="fontSizeButtonStyle(sizeOption.value)"
+          >
+            <span :style="fontSizeLabelStyle(sizeOption.value)">{{ sizeOption.label }}</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-info">
           <h3 class="setting-label" :style="labelStyle">Theme</h3>
           <p :style="descriptionStyle">Choose your preferred color theme</p>
         </div>
@@ -61,11 +80,18 @@ import { colorPalettes } from '@/design/tokens'
 
 const themeStore = useThemeStore()
 const authStore = useAuthStore()
-const { tokens } = useTheme()
+const { tokens, fontSize } = useTheme()
 
 const theme = computed(() => themeStore.theme)
 const userEmail = computed(() => authStore.user?.email || '')
 const userName = computed(() => authStore.user?.name || '')
+
+const fontSizes = [
+  { value: 'small', label: 'Small' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'large', label: 'Large' },
+  { value: 'xlarge', label: 'X-Large' }
+]
 
 const themes = [
   { value: 'light', label: 'Light' },
@@ -86,6 +112,32 @@ const themes = [
 
 const selectTheme = (newTheme) => {
   themeStore.setTheme(newTheme)
+}
+
+const selectFontSize = (newSize) => {
+  themeStore.setFontSize(newSize)
+}
+
+const fontSizeButtonStyle = (sizeValue) => {
+  const isActive = fontSize.value === sizeValue
+  return {
+    background: isActive ? tokens.value.colors.primary : tokens.value.colors.bgSecondary,
+    borderColor: isActive ? tokens.value.colors.primary : tokens.value.colors.border,
+    border: '2px solid',
+    borderRadius: tokens.value.radius.md,
+    padding: `${tokens.value.spacing.sm} ${tokens.value.spacing.lg}`,
+    cursor: 'pointer',
+    transition: tokens.value.transitions.normal
+  }
+}
+
+const fontSizeLabelStyle = (sizeValue) => {
+  const isActive = fontSize.value === sizeValue
+  return {
+    color: isActive ? 'white' : tokens.value.colors.text,
+    fontWeight: isActive ? tokens.value.typography.weights.semibold : tokens.value.typography.weights.medium,
+    fontSize: tokens.value.typography.sizes.sm
+  }
 }
 
 const getThemePreviewStyle = (themeValue) => {
@@ -196,6 +248,17 @@ const descriptionStyle = computed(() => ({
 
 .setting-info p {
   margin: 0;
+}
+
+.font-size-picker {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.size-option:hover {
+  opacity: 0.9;
 }
 
 .theme-picker {

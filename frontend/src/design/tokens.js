@@ -283,17 +283,6 @@ export const spacing = {
 export const typography = {
   fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
 
-  sizes: {
-    xs: '12px',
-    sm: '14px',
-    base: '16px',
-    lg: '18px',
-    xl: '20px',
-    '2xl': '24px',
-    '3xl': '32px',
-    '4xl': '40px'
-  },
-
   weights: {
     normal: 400,
     medium: 500,
@@ -305,6 +294,50 @@ export const typography = {
     tight: 1.25,
     normal: 1.5,
     relaxed: 1.75
+  }
+}
+
+// Font size scales
+export const fontSizeScales = {
+  small: {
+    xs: '11px',
+    sm: '13px',
+    base: '15px',
+    lg: '17px',
+    xl: '19px',
+    '2xl': '22px',
+    '3xl': '28px',
+    '4xl': '36px'
+  },
+  medium: {
+    xs: '12px',
+    sm: '14px',
+    base: '16px',
+    lg: '18px',
+    xl: '20px',
+    '2xl': '24px',
+    '3xl': '32px',
+    '4xl': '40px'
+  },
+  large: {
+    xs: '13px',
+    sm: '15px',
+    base: '17px',
+    lg: '20px',
+    xl: '22px',
+    '2xl': '26px',
+    '3xl': '36px',
+    '4xl': '44px'
+  },
+  xlarge: {
+    xs: '14px',
+    sm: '16px',
+    base: '18px',
+    lg: '22px',
+    xl: '24px',
+    '2xl': '28px',
+    '3xl': '40px',
+    '4xl': '48px'
   }
 }
 
@@ -325,13 +358,17 @@ export const transitions = {
 }
 
 // Get theme-specific tokens
-export function getThemeTokens(theme) {
+export function getThemeTokens(theme, fontSize = 'medium') {
   const colors = colorPalettes[theme] || colorPalettes.dark
+  const sizes = fontSizeScales[fontSize] || fontSizeScales.medium
 
   return {
     colors,
     spacing,
-    typography,
+    typography: {
+      ...typography,
+      sizes
+    },
     radius,
     transitions
   }
