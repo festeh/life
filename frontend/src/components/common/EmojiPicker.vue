@@ -1,28 +1,19 @@
 <template>
-  <div class="emoji-picker" :style="pickerStyle">
-    <div class="emoji-categories">
-      <button
-        v-for="cat in categories"
-        :key="cat.name"
-        @click="selectedCategory = cat.name"
-        :class="['category-btn', { active: selectedCategory === cat.name }]"
-        :style="categoryButtonStyle(cat.name)"
-        :title="cat.name"
-      >
-        {{ cat.icon }}
-      </button>
+  <div class="emoji-picker-wrapper">
+    <div v-if="modelValue" class="selected-emoji" :style="selectedEmojiStyle" @click="showPicker = !showPicker">
+      <span :style="emojiDisplayStyle">{{ modelValue || '😊' }}</span>
+      <span :style="changeLabelStyle">{{ modelValue ? 'Change' : 'Pick emoji' }}</span>
     </div>
+    <button v-else type="button" @click="showPicker = !showPicker" :style="buttonStyle">
+      Pick emoji
+    </button>
 
-    <div class="emoji-grid" :style="gridStyle">
-      <button
-        v-for="emoji in currentEmojis"
-        :key="emoji"
-        @click="selectEmoji(emoji)"
-        :class="['emoji-btn', { selected: modelValue === emoji }]"
-        :style="emojiButtonStyle(emoji)"
-      >
-        {{ emoji }}
-      </button>
+    <div v-if="showPicker" class="picker-container" :style="pickerContainerStyle">
+      <EmojiPicker
+        :native="true"
+        @select="onSelectEmoji"
+        :theme="currentTheme"
+      />
     </div>
   </div>
 </template>
@@ -30,6 +21,8 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useTheme } from '@/composables/useTheme'
+import EmojiPicker from 'vue3-emoji-picker'
+import 'vue3-emoji-picker/css'
 
 const props = defineProps({
   modelValue: {
@@ -40,149 +33,73 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue'])
 
-const { tokens } = useTheme()
-const selectedCategory = ref('activities')
+const { tokens, theme } = useTheme()
+const showPicker = ref(false)
 
-const categories = [
-  {
-    name: 'activities',
-    icon: '⚽',
-    emojis: ['💪', '🏃', '🧘', '🚴', '🏊', '⚽', '🏀', '🎾', '🏋️', '🤸', '🧗', '🥊', '🎯', '🎮', '🎨', '🎸', '📚', '✍️', '🎭', '🎪']
-  },
-  {
-    name: 'health',
-    icon: '❤️',
-    emojis: ['❤️', '🧠', '💊', '🩺', '😴', '🥗', '🥤', '🍎', '🥕', '🥦', '🫁', '🦷', '👁️', '🧬', '💉', '🌡️', '⚕️', '🏥', '💆', '🧖']
-  },
-  {
-    name: 'learning',
-    icon: '📚',
-    emojis: ['📚', '📖', '✏️', '📝', '🎓', '🔬', '🔭', '🧪', '🖥️', '💻', '📱', '⌨️', '🖊️', '📐', '🧮', '🗂️', '📊', '📈', '🎯', '🧩']
-  },
-  {
-    name: 'home',
-    icon: '🏠',
-    emojis: ['🏠', '🧹', '🧺', '🛁', '🚿', '🧼', '🧽', '🪣', '🔧', '🔨', '🪛', '🛠️', '🪚', '🔩', '⚙️', '🗑️', '♻️', '🌱', '🪴', '🧴']
-  },
-  {
-    name: 'nature',
-    icon: '🌿',
-    emojis: ['🌿', '🌱', '🌳', '🌲', '🌴', '🌵', '🌾', '🍀', '☘️', '🌺', '🌻', '🌸', '🌼', '🌷', '🦋', '🐝', '🌍', '🌎', '🌏', '♻️']
-  },
-  {
-    name: 'food',
-    icon: '🍎',
-    emojis: ['🍎', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🫐', '🍑', '🥭', '🥝', '🥑', '🥕', '🥦', '🥗', '🥪', '🍜', '☕', '🥤', '💧']
-  },
-  {
-    name: 'work',
-    icon: '💼',
-    emojis: ['💼', '👔', '📊', '📈', '📉', '💰', '💵', '💳', '📞', '📧', '📝', '📋', '📌', '📎', '🖇️', '✂️', '🗓️', '📅', '⏰', '⏱️']
-  },
-  {
-    name: 'social',
-    icon: '👥',
-    emojis: ['👥', '👨‍👩‍👧‍👦', '💬', '📞', '🤝', '🫂', '👋', '🙏', '🤗', '😊', '😃', '❤️', '💝', '🎉', '🎊', '🎈', '🎁', '🍰', '🥳', '🪅']
-  },
-  {
-    name: 'travel',
-    icon: '✈️',
-    emojis: ['✈️', '🚗', '🚕', '🚙', '🚌', '🚎', '🚐', '🚑', '🚒', '🚓', '🚔', '🚘', '🚖', '🚆', '🚊', '🚇', '🚲', '🛴', '🛵', '🏍️']
-  },
-  {
-    name: 'time',
-    icon: '⏰',
-    emojis: ['⏰', '⏱️', '⏲️', '🕐', '🕑', '🕒', '🕓', '🕔', '🕕', '🕖', '🕗', '📅', '📆', '🗓️', '⌚', '⏳', '⌛', '🌅', '🌄', '🌇']
-  }
-]
-
-const currentEmojis = computed(() => {
-  const category = categories.find(c => c.name === selectedCategory.value)
-  return category ? category.emojis : []
+const currentTheme = computed(() => {
+  return theme.value === 'light' ? 'light' : 'dark'
 })
 
-const selectEmoji = (emoji) => {
-  emit('update:modelValue', emoji)
+const onSelectEmoji = (emoji) => {
+  emit('update:modelValue', emoji.i)
+  showPicker.value = false
 }
 
-const pickerStyle = computed(() => ({
-  background: tokens.value.colors.bgSecondary,
+const selectedEmojiStyle = computed(() => ({
+  display: 'flex',
+  alignItems: 'center',
+  gap: tokens.value.spacing.md,
+  padding: tokens.value.spacing.sm,
+  background: tokens.value.colors.bg,
   border: `1px solid ${tokens.value.colors.border}`,
-  borderRadius: tokens.value.radius.lg,
-  padding: tokens.value.spacing.md,
-  maxWidth: '320px'
+  borderRadius: tokens.value.radius.md,
+  cursor: 'pointer',
+  transition: tokens.value.transitions.normal
 }))
 
-const gridStyle = computed(() => ({
-  display: 'grid',
-  gridTemplateColumns: 'repeat(5, 1fr)',
-  gap: tokens.value.spacing.xs,
-  maxHeight: '240px',
-  overflowY: 'auto',
-  padding: tokens.value.spacing.xs
+const emojiDisplayStyle = computed(() => ({
+  fontSize: tokens.value.typography.sizes['3xl']
 }))
 
-const categoryButtonStyle = (categoryName) => {
-  const isActive = selectedCategory.value === categoryName
-  return {
-    fontSize: tokens.value.typography.sizes.lg,
-    padding: tokens.value.spacing.xs,
-    background: isActive ? tokens.value.colors.primary : 'transparent',
-    border: 'none',
-    borderRadius: tokens.value.radius.md,
-    cursor: 'pointer',
-    transition: tokens.value.transitions.fast,
-    opacity: isActive ? 1 : 0.6
-  }
-}
+const changeLabelStyle = computed(() => ({
+  fontSize: tokens.value.typography.sizes.sm,
+  color: tokens.value.colors.textSecondary,
+  fontWeight: tokens.value.typography.weights.medium
+}))
 
-const emojiButtonStyle = (emoji) => {
-  const isSelected = props.modelValue === emoji
-  return {
-    fontSize: tokens.value.typography.sizes['2xl'],
-    padding: tokens.value.spacing.sm,
-    background: isSelected ? tokens.value.colors.primaryLight : 'transparent',
-    border: `2px solid ${isSelected ? tokens.value.colors.primary : 'transparent'}`,
-    borderRadius: tokens.value.radius.md,
-    cursor: 'pointer',
-    transition: tokens.value.transitions.fast
-  }
-}
+const buttonStyle = computed(() => ({
+  padding: `${tokens.value.spacing.sm} ${tokens.value.spacing.lg}`,
+  background: tokens.value.colors.bgSecondary,
+  color: tokens.value.colors.text,
+  border: `1px solid ${tokens.value.colors.border}`,
+  borderRadius: tokens.value.radius.md,
+  fontSize: tokens.value.typography.sizes.sm,
+  fontWeight: tokens.value.typography.weights.medium,
+  cursor: 'pointer',
+  transition: tokens.value.transitions.normal
+}))
+
+const pickerContainerStyle = computed(() => ({
+  position: 'absolute',
+  zIndex: 1000,
+  marginTop: tokens.value.spacing.xs
+}))
 </script>
 
 <style scoped>
-.emoji-categories {
-  display: flex;
-  gap: 4px;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid;
-  border-color: inherit;
-  flex-wrap: wrap;
+.emoji-picker-wrapper {
+  position: relative;
 }
 
-.category-btn:hover {
-  opacity: 1 !important;
+.selected-emoji:hover {
+  opacity: 0.8;
 }
 
-.emoji-btn:hover {
-  transform: scale(1.1);
+button:hover {
+  opacity: 0.9;
 }
 
-.emoji-grid::-webkit-scrollbar {
-  width: 6px;
-}
-
-.emoji-grid::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.emoji-grid::-webkit-scrollbar-thumb {
-  background: #cbd5e0;
-  border-radius: 3px;
-}
-
-.emoji-grid::-webkit-scrollbar-thumb:hover {
-  background: #a0aec0;
+.picker-container {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 </style>
