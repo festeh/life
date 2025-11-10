@@ -1,6 +1,6 @@
 <template>
   <div class="dashboard" :style="dashboardStyle">
-    <h1 :style="headingStyle">Dashboard</h1>
+    <h1 :style="headingStyle">My Life</h1>
 
     <div v-if="loading" :style="loadingStyle">Loading...</div>
 

@@ -4,6 +4,7 @@
       <h1 :style="logoStyle">Life</h1>
       <nav class="nav">
         <RouterLink to="/" class="nav-link" :style="navLinkStyle">Dashboard</RouterLink>
+        <RouterLink to="/personal" class="nav-link" :style="navLinkStyle">My Life</RouterLink>
         <RouterLink to="/habits" class="nav-link" :style="navLinkStyle">Habits</RouterLink>
         <RouterLink to="/statistics" class="nav-link" :style="navLinkStyle">Statistics</RouterLink>
       </nav>
