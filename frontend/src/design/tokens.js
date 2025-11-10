@@ -297,47 +297,18 @@ export const typography = {
   }
 }
 
-// Font size scales
-export const fontSizeScales = {
-  small: {
-    xs: '11px',
-    sm: '13px',
-    base: '15px',
-    lg: '17px',
-    xl: '19px',
-    '2xl': '22px',
-    '3xl': '28px',
-    '4xl': '36px'
-  },
-  medium: {
-    xs: '12px',
-    sm: '14px',
-    base: '16px',
-    lg: '18px',
-    xl: '20px',
-    '2xl': '24px',
-    '3xl': '32px',
-    '4xl': '40px'
-  },
-  large: {
-    xs: '13px',
-    sm: '15px',
-    base: '17px',
-    lg: '20px',
-    xl: '22px',
-    '2xl': '26px',
-    '3xl': '36px',
-    '4xl': '44px'
-  },
-  xlarge: {
-    xs: '14px',
-    sm: '16px',
-    base: '18px',
-    lg: '22px',
-    xl: '24px',
-    '2xl': '28px',
-    '3xl': '40px',
-    '4xl': '48px'
+// Font size scale generator - creates scales from 80% to 140% of base size
+export function getFontSizeScale(percentage) {
+  const multiplier = percentage / 100
+  return {
+    xs: `${Math.round(12 * multiplier)}px`,
+    sm: `${Math.round(14 * multiplier)}px`,
+    base: `${Math.round(16 * multiplier)}px`,
+    lg: `${Math.round(18 * multiplier)}px`,
+    xl: `${Math.round(20 * multiplier)}px`,
+    '2xl': `${Math.round(24 * multiplier)}px`,
+    '3xl': `${Math.round(32 * multiplier)}px`,
+    '4xl': `${Math.round(40 * multiplier)}px`
   }
 }
 
@@ -358,9 +329,9 @@ export const transitions = {
 }
 
 // Get theme-specific tokens
-export function getThemeTokens(theme, fontSize = 'medium') {
+export function getThemeTokens(theme, fontSizePercentage = 100) {
   const colors = colorPalettes[theme] || colorPalettes.dark
-  const sizes = fontSizeScales[fontSize] || fontSizeScales.medium
+  const sizes = getFontSizeScale(fontSizePercentage)
 
   return {
     colors,

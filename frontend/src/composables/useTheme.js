@@ -5,11 +5,11 @@ import { getThemeTokens } from '@/design/tokens'
 export function useTheme() {
   const themeStore = useThemeStore()
 
-  const tokens = computed(() => getThemeTokens(themeStore.theme, themeStore.fontSize))
+  const tokens = computed(() => getThemeTokens(themeStore.theme, themeStore.fontSizePercentage))
 
   return {
     tokens,
     theme: computed(() => themeStore.theme),
-    fontSize: computed(() => themeStore.fontSize)
+    fontSizePercentage: computed(() => themeStore.fontSizePercentage)
   }
 }

@@ -8,19 +8,22 @@
       <div class="setting-item">
         <div class="setting-info">
           <h3 class="setting-label" :style="labelStyle">Font Size</h3>
-          <p :style="descriptionStyle">Adjust text size for better readability</p>
+          <p :style="descriptionStyle">Adjust text size for better readability ({{ fontSizePercentage }}%)</p>
         </div>
 
-        <div class="font-size-picker">
-          <button
-            v-for="sizeOption in fontSizes"
-            :key="sizeOption.value"
-            @click="selectFontSize(sizeOption.value)"
-            :class="['size-option', { active: fontSize === sizeOption.value }]"
-            :style="fontSizeButtonStyle(sizeOption.value)"
-          >
-            <span :style="fontSizeLabelStyle(sizeOption.value)">{{ sizeOption.label }}</span>
-          </button>
+        <div class="font-size-slider">
+          <span :style="sliderLabelStyle">Small</span>
+          <input
+            type="range"
+            min="80"
+            max="140"
+            step="5"
+            :value="fontSizePercentage"
+            @input="handleFontSizeChange"
+            :style="sliderStyle"
+            class="slider"
+          />
+          <span :style="sliderLabelStyle">Large</span>
         </div>
       </div>
 
@@ -80,18 +83,11 @@ import { colorPalettes } from '@/design/tokens'
 
 const themeStore = useThemeStore()
 const authStore = useAuthStore()
-const { tokens, fontSize } = useTheme()
+const { tokens, fontSizePercentage } = useTheme()
 
 const theme = computed(() => themeStore.theme)
 const userEmail = computed(() => authStore.user?.email || '')
 const userName = computed(() => authStore.user?.name || '')
-
-const fontSizes = [
-  { value: 'small', label: 'Small' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'large', label: 'Large' },
-  { value: 'xlarge', label: 'X-Large' }
-]
 
 const themes = [
   { value: 'light', label: 'Light' },
@@ -114,31 +110,20 @@ const selectTheme = (newTheme) => {
   themeStore.setTheme(newTheme)
 }
 
-const selectFontSize = (newSize) => {
-  themeStore.setFontSize(newSize)
+const handleFontSizeChange = (event) => {
+  themeStore.setFontSizePercentage(parseInt(event.target.value))
 }
 
-const fontSizeButtonStyle = (sizeValue) => {
-  const isActive = fontSize.value === sizeValue
-  return {
-    background: isActive ? tokens.value.colors.primary : tokens.value.colors.bgSecondary,
-    borderColor: isActive ? tokens.value.colors.primary : tokens.value.colors.border,
-    border: '2px solid',
-    borderRadius: tokens.value.radius.md,
-    padding: `${tokens.value.spacing.sm} ${tokens.value.spacing.lg}`,
-    cursor: 'pointer',
-    transition: tokens.value.transitions.normal
-  }
-}
+const sliderStyle = computed(() => ({
+  flex: 1,
+  margin: `0 ${tokens.value.spacing.md}`
+}))
 
-const fontSizeLabelStyle = (sizeValue) => {
-  const isActive = fontSize.value === sizeValue
-  return {
-    color: isActive ? 'white' : tokens.value.colors.text,
-    fontWeight: isActive ? tokens.value.typography.weights.semibold : tokens.value.typography.weights.medium,
-    fontSize: tokens.value.typography.sizes.sm
-  }
-}
+const sliderLabelStyle = computed(() => ({
+  color: tokens.value.colors.textSecondary,
+  fontSize: tokens.value.typography.sizes.sm,
+  fontWeight: tokens.value.typography.weights.medium
+}))
 
 const getThemePreviewStyle = (themeValue) => {
   const palette = colorPalettes[themeValue]
@@ -250,15 +235,66 @@ const descriptionStyle = computed(() => ({
   margin: 0;
 }
 
-.font-size-picker {
+.font-size-slider {
   display: flex;
-  gap: 12px;
+  align-items: center;
   margin-top: 16px;
-  flex-wrap: wrap;
+  gap: 12px;
 }
 
-.size-option:hover {
-  opacity: 0.9;
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+  background: #e5e7eb;
+}
+
+[data-theme='dark'] .slider,
+[data-theme='ocean'] .slider,
+[data-theme='forest'] .slider,
+[data-theme='sunset'] .slider,
+[data-theme='purple'] .slider,
+[data-theme='dracula'] .slider,
+[data-theme='nord'] .slider,
+[data-theme='monokai'] .slider,
+[data-theme='solarized'] .slider,
+[data-theme='cyberpunk'] .slider,
+[data-theme='coffee'] .slider,
+[data-theme='midnight'] .slider,
+[data-theme='rose'] .slider {
+  background: #374151;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #6366f1;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #6366f1;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+
+.slider::-moz-range-thumb:hover {
+  transform: scale(1.1);
 }
 
 .theme-picker {
