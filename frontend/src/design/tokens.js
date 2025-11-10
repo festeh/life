@@ -297,6 +297,46 @@ export const typography = {
   }
 }
 
+// Font options for user selection
+export const fontOptions = [
+  {
+    id: 'system',
+    name: 'System',
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+    description: 'Clean and modern system fonts'
+  },
+  {
+    id: 'serif',
+    name: 'Serif',
+    fontFamily: "Georgia, 'Times New Roman', Times, serif",
+    description: 'Classic and traditional'
+  },
+  {
+    id: 'mono',
+    name: 'Monospace',
+    fontFamily: "'Courier New', Courier, 'SF Mono', Monaco, monospace",
+    description: 'Code-style fixed-width font'
+  },
+  {
+    id: 'inter',
+    name: 'Inter',
+    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+    description: 'Modern and highly legible'
+  },
+  {
+    id: 'rounded',
+    name: 'Rounded',
+    fontFamily: "ui-rounded, 'Hiragino Maru Gothic ProN', Quicksand, Comfortaa, 'Manjari', 'Arial Rounded MT Bold', Calibri, source-sans-pro, sans-serif",
+    description: 'Friendly and approachable'
+  },
+  {
+    id: 'classic',
+    name: 'Classic',
+    fontFamily: "'Palatino Linotype', 'Book Antiqua', Palatino, 'Garamond', serif",
+    description: 'Elegant and timeless'
+  }
+]
+
 // Font size scale generator - creates scales from 80% to 140% of base size
 export function getFontSizeScale(percentage) {
   const multiplier = percentage / 100

@@ -27,7 +27,8 @@ const appStyle = computed(() => ({
   display: 'flex',
   flexDirection: 'column',
   overflow: 'hidden',
-  background: tokens.value.colors.bg
+  background: tokens.value.colors.bg,
+  fontFamily: tokens.value.typography.fontFamily
 }))
 
 // Set CSS variables for layout tokens

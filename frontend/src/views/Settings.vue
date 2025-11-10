@@ -29,6 +29,27 @@
 
       <div class="setting-item">
         <div class="setting-info">
+          <h3 class="setting-label" :style="labelStyle">Font Family</h3>
+          <p :style="descriptionStyle">Choose your preferred font style</p>
+        </div>
+
+        <div class="font-picker">
+          <button
+            v-for="font in fontOptions"
+            :key="font.id"
+            @click="selectFont(font.id)"
+            :class="['font-option', { active: fontFamily === font.id }]"
+            :style="fontButtonStyle(font.id)"
+          >
+            <span class="font-preview" :style="getFontPreviewStyle(font)">Aa</span>
+            <span class="font-name" :style="fontLabelStyle(font.id)">{{ font.name }}</span>
+            <span class="font-description" :style="fontDescriptionStyle">{{ font.description }}</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-info">
           <h3 class="setting-label" :style="labelStyle">Theme</h3>
           <p :style="descriptionStyle">Choose your preferred color theme</p>
         </div>
@@ -83,7 +104,7 @@ import { colorPalettes } from '@/design/tokens'
 
 const themeStore = useThemeStore()
 const authStore = useAuthStore()
-const { tokens, fontSizePercentage } = useTheme()
+const { tokens, fontSizePercentage, fontFamily, fontOptions } = useTheme()
 
 const theme = computed(() => themeStore.theme)
 const userEmail = computed(() => authStore.user?.email || '')
@@ -113,6 +134,44 @@ const selectTheme = (newTheme) => {
 const handleFontSizeChange = (event) => {
   themeStore.setFontSizePercentage(parseInt(event.target.value))
 }
+
+const selectFont = (fontId) => {
+  themeStore.setFontFamily(fontId)
+}
+
+const getFontPreviewStyle = (font) => {
+  return {
+    fontFamily: font.fontFamily,
+    fontSize: tokens.value.typography.sizes['2xl'],
+    fontWeight: tokens.value.typography.weights.semibold,
+    color: tokens.value.colors.text
+  }
+}
+
+const fontButtonStyle = (fontId) => {
+  const isActive = fontFamily.value === fontId
+  return {
+    background: isActive ? tokens.value.colors.primaryLight : tokens.value.colors.bg,
+    borderColor: isActive ? tokens.value.colors.primary : tokens.value.colors.border,
+    borderRadius: tokens.value.radius.lg,
+    padding: tokens.value.spacing.md,
+    transition: tokens.value.transitions.normal
+  }
+}
+
+const fontLabelStyle = (fontId) => {
+  const isActive = fontFamily.value === fontId
+  return {
+    color: isActive ? 'white' : tokens.value.colors.text,
+    fontWeight: tokens.value.typography.weights.semibold,
+    fontSize: tokens.value.typography.sizes.sm
+  }
+}
+
+const fontDescriptionStyle = computed(() => ({
+  color: tokens.value.colors.textSecondary,
+  fontSize: tokens.value.typography.sizes.xs
+}))
 
 const sliderStyle = computed(() => ({
   flex: 1,
@@ -294,6 +353,45 @@ const descriptionStyle = computed(() => ({
 
 .slider::-moz-range-thumb:hover {
   transform: scale(1.1);
+}
+
+.font-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.font-option {
+  border: 2px solid;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px;
+  text-align: center;
+}
+
+.font-option:hover {
+  border-color: #6366f1;
+  transform: translateY(-2px);
+}
+
+.font-preview {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.font-name {
+  display: block;
+  margin-bottom: 2px;
+}
+
+.font-description {
+  display: block;
+  font-size: 11px;
+  line-height: 1.3;
 }
 
 .theme-picker {
