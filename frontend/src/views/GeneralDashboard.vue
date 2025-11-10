@@ -1,7 +1,5 @@
 <template>
   <div class="general-dashboard" :style="dashboardStyle">
-    <h1 :style="headingStyle">Dashboard</h1>
-
     <!-- Weather Section -->
     <section :style="sectionStyle">
       <h2 :style="subHeadingStyle">Weather</h2>
@@ -36,12 +34,6 @@ onUnmounted(() => {
 // Computed styles
 const dashboardStyle = computed(() => ({
   background: tokens.value.colors.bg
-}))
-
-const headingStyle = computed(() => ({
-  fontSize: tokens.value.typography.sizes['3xl'],
-  marginBottom: tokens.value.spacing.xl,
-  color: tokens.value.colors.text
 }))
 
 const subHeadingStyle = computed(() => ({
