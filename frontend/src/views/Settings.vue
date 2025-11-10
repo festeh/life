@@ -169,7 +169,6 @@ const themeLabelStyle = (themeValue) => {
 
 // Computed styles using design tokens
 const settingsPageStyle = computed(() => ({
-  minHeight: '100vh',
   background: tokens.value.colors.bg
 }))
 

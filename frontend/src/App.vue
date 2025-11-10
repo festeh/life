@@ -8,7 +8,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { RouterView, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useThemeStore } from '@/stores/theme'
@@ -23,9 +23,22 @@ const { tokens } = useTheme()
 const isAuthenticated = computed(() => authStore.isAuthenticated)
 
 const appStyle = computed(() => ({
-  minHeight: '100vh',
+  height: '100vh',
+  display: 'flex',
+  flexDirection: 'column',
+  overflow: 'hidden',
   background: tokens.value.colors.bg
 }))
+
+// Set CSS variables for layout tokens
+watch(() => tokens.value.layout, (layout) => {
+  if (layout) {
+    document.documentElement.style.setProperty('--container-max-width', layout.containerMaxWidth)
+    document.documentElement.style.setProperty('--padding-mobile', layout.padding.mobile)
+    document.documentElement.style.setProperty('--padding-tablet', layout.padding.tablet)
+    document.documentElement.style.setProperty('--padding-desktop', layout.padding.desktop)
+  }
+}, { immediate: true })
 
 onMounted(async () => {
   // Initialize theme
@@ -48,19 +61,24 @@ onMounted(async () => {
 </script>
 
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-}
-
 .main-content {
-  max-width: 1200px;
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--padding-mobile);
+  width: 100%;
+  max-width: var(--container-max-width);
   margin: 0 auto;
-  padding: 20px;
+}
+
+@media (min-width: 768px) {
+  .main-content {
+    padding: var(--padding-tablet);
+  }
+}
+
+@media (min-width: 1024px) {
+  .main-content {
+    padding: var(--padding-desktop);
+  }
 }
 </style>

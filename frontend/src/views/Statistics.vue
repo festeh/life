@@ -89,7 +89,6 @@ onMounted(async () => {
 
 // Computed styles using design tokens
 const pageStyle = computed(() => ({
-  minHeight: '100vh',
   background: tokens.value.colors.bg
 }))
 
@@ -198,8 +197,26 @@ const statRowLastStyle = computed(() => ({
 <style scoped>
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 16px;
+  gap: 20px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 .habit-header {

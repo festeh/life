@@ -91,12 +91,24 @@ const buttonStyle = computed(() => ({
 
 <style scoped>
 .header-content {
-  max-width: 1200px;
+  max-width: var(--container-max-width);
   margin: 0 auto;
-  padding: 16px 20px;
+  padding: 16px var(--padding-mobile);
   display: flex;
   align-items: center;
   gap: 32px;
+}
+
+@media (min-width: 768px) {
+  .header-content {
+    padding: 16px var(--padding-tablet);
+  }
+}
+
+@media (min-width: 1024px) {
+  .header-content {
+    padding: 16px var(--padding-desktop);
+  }
 }
 
 .nav {

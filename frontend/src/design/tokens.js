@@ -328,6 +328,22 @@ export const transitions = {
   slow: '300ms ease'
 }
 
+// Layout
+export const layout = {
+  containerMaxWidth: '1800px',
+  padding: {
+    mobile: '20px',
+    tablet: '32px',
+    desktop: '40px'
+  },
+  breakpoints: {
+    mobile: '640px',
+    tablet: '768px',
+    laptop: '1024px',
+    desktop: '1280px'
+  }
+}
+
 // Get theme-specific tokens
 export function getThemeTokens(theme, fontSizePercentage = 100) {
   const colors = colorPalettes[theme] || colorPalettes.dark
@@ -341,6 +357,7 @@ export function getThemeTokens(theme, fontSizePercentage = 100) {
       sizes
     },
     radius,
-    transitions
+    transitions,
+    layout
   }
 }
