@@ -22,7 +22,7 @@ export const useWeatherStore = defineStore('weather', {
   }),
 
   getters: {
-    // Get "last updated" relative time
+    // Get "last updated" time display
     lastUpdatedText: (state) => {
       if (!state.lastUpdated) return ''
 
@@ -30,13 +30,17 @@ export const useWeatherStore = defineStore('weather', {
       const diff = now - state.lastUpdated
       const minutes = Math.floor(diff / 60000)
 
-      if (minutes < 1) return 'Just now'
-      if (minutes === 1) return '1 minute ago'
-      if (minutes < 60) return `${minutes} minutes ago`
+      // Show relative time if less than 60 minutes
+      if (minutes < 1) return 'Updated less than a minute ago'
+      if (minutes === 1) return 'Updated 1 minute ago'
+      if (minutes < 60) return `Updated ${minutes} minutes ago`
 
-      const hours = Math.floor(minutes / 60)
-      if (hours === 1) return '1 hour ago'
-      return `${hours} hours ago`
+      // For older times, show absolute time
+      const timeStr = state.lastUpdated.toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+      return `Updated at ${timeStr}`
     }
   },
 
