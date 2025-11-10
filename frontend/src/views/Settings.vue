@@ -100,6 +100,8 @@ h1 {
   color: var(--text);
   border-bottom: 1px solid var(--border);
   padding-bottom: 12px;
+  font-weight: 700;
+  opacity: 1;
 }
 
 .setting-item {
@@ -115,11 +117,13 @@ h1 {
   font-weight: 600;
   margin-bottom: 4px;
   color: var(--text);
+  opacity: 1;
 }
 
 .setting-info p {
   font-size: 14px;
   color: var(--text-secondary);
+  opacity: 1;
 }
 
 .theme-picker {
@@ -149,6 +153,11 @@ h1 {
 .theme-option.active {
   border-color: var(--primary);
   background: var(--primary-light);
+}
+
+.theme-option.active .theme-name {
+  color: white;
+  font-weight: 600;
 }
 
 .theme-preview {
