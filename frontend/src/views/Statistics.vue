@@ -108,6 +108,7 @@ const subHeadingStyle = computed(() => ({
 const loadingStyle = computed(() => ({
   textAlign: 'center',
   padding: tokens.value.spacing['3xl'],
+  fontSize: tokens.value.typography.sizes.base,
   color: tokens.value.colors.textSecondary
 }))
 
