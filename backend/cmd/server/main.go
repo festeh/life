@@ -69,6 +69,7 @@ func main() {
 	{
 		auth.GET("/google/login", authHandler.GoogleLogin)
 		auth.GET("/google/callback", authHandler.GoogleCallback)
+		auth.GET("/dev/login", authHandler.DevLogin) // Development only
 		auth.GET("/me", middleware.AuthMiddleware(cfg.JWT.Secret), authHandler.GetCurrentUser)
 		auth.POST("/logout", middleware.AuthMiddleware(cfg.JWT.Secret), authHandler.Logout)
 	}
