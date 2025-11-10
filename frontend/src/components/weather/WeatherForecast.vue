@@ -77,6 +77,7 @@ const dayCardStyle = computed(() => ({
   textAlign: 'center',
   display: 'flex',
   flexDirection: 'column',
+  alignItems: 'center',
   gap: tokens.value.spacing.sm,
   minWidth: '100px'
 }))

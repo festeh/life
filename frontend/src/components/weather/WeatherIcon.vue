@@ -43,9 +43,10 @@ const svgContent = computed(() => {
 
 // Computed styles
 const wrapperStyle = computed(() => ({
-  display: 'inline-block',
+  display: 'block',
   width: props.size,
-  height: props.size
+  height: props.size,
+  margin: '0 auto'
 }))
 
 const iconStyle = computed(() => ({
