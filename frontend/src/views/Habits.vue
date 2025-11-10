@@ -49,7 +49,7 @@
           </div>
           <div :style="formGroupStyle">
             <label :style="labelStyle">Icon (emoji)</label>
-            <input v-model="formData.icon" :style="inputStyle" placeholder="🏃" maxlength="2" />
+            <EmojiPicker v-model="formData.icon" />
           </div>
           <div :style="formGroupStyle">
             <label :style="labelStyle">Color</label>
@@ -69,6 +69,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useHabitsStore } from '@/stores/habits'
 import { useTheme } from '@/composables/useTheme'
+import EmojiPicker from '@/components/common/EmojiPicker.vue'
 
 const habitsStore = useHabitsStore()
 const { tokens } = useTheme()
