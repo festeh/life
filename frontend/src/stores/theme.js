@@ -3,7 +3,8 @@ import { defineStore } from 'pinia'
 export const useThemeStore = defineStore('theme', {
   state: () => ({
     theme: localStorage.getItem('theme') || 'dark',
-    fontSizePercentage: parseInt(localStorage.getItem('fontSizePercentage')) || 100
+    fontSizePercentage: parseInt(localStorage.getItem('fontSizePercentage')) || 100,
+    fontFamily: localStorage.getItem('fontFamily') || 'system'
   }),
 
   getters: {
@@ -20,6 +21,11 @@ export const useThemeStore = defineStore('theme', {
     setFontSizePercentage(percentage) {
       this.fontSizePercentage = percentage
       localStorage.setItem('fontSizePercentage', percentage.toString())
+    },
+
+    setFontFamily(fontId) {
+      this.fontFamily = fontId
+      localStorage.setItem('fontFamily', fontId)
     },
 
     toggleTheme() {
