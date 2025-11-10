@@ -13,13 +13,13 @@
         <WeatherIcon
           :icon="day.iconName"
           :emoji="day.icon"
-          size="48px"
+          size="32px"
         />
+        <div :style="conditionStyle">{{ day.description }}</div>
         <div :style="tempRangeStyle">
           <span :style="highTempStyle">{{ day.high }}°</span>
           <span :style="lowTempStyle">{{ day.low }}°</span>
         </div>
-        <div :style="conditionStyle">{{ day.description }}</div>
       </div>
     </div>
   </div>
@@ -38,9 +38,6 @@ const forecast = computed(() => weatherStore.forecast)
 const loading = computed(() => weatherStore.loading)
 
 const getDayName = (date, index) => {
-  if (index === 0) return 'Today'
-  if (index === 1) return 'Tomorrow'
-
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
   return days[date.getDay()]
 }
@@ -64,21 +61,19 @@ const loadingStyle = computed(() => ({
 
 const dayCardStyle = computed(() => ({
   background: 'transparent',
-  padding: tokens.value.spacing.md,
-  borderRadius: tokens.value.radius.lg,
-  borderRight: `1px solid ${tokens.value.colors.border}`,
-  textAlign: 'center',
+  padding: `${tokens.value.spacing.sm} ${tokens.value.spacing.md}`,
+  borderBottom: `1px solid ${tokens.value.colors.border}`,
   display: 'flex',
-  flexDirection: 'column',
   alignItems: 'center',
-  gap: tokens.value.spacing.sm,
-  minWidth: '100px'
+  gap: tokens.value.spacing.md
 }))
 
 const dayNameStyle = computed(() => ({
   fontSize: tokens.value.typography.sizes.sm,
   fontWeight: tokens.value.typography.weights.medium,
-  color: tokens.value.colors.text
+  color: tokens.value.colors.text,
+  minWidth: '80px',
+  textAlign: 'left'
 }))
 
 const tempRangeStyle = computed(() => ({
@@ -99,41 +94,21 @@ const lowTempStyle = computed(() => ({
 
 const conditionStyle = computed(() => ({
   fontSize: tokens.value.typography.sizes.xs,
-  color: tokens.value.colors.textSecondary
+  color: tokens.value.colors.textSecondary,
+  flex: 1,
+  textAlign: 'left',
+  marginLeft: '12px'
 }))
 </script>
 
 <style scoped>
 .forecast-container {
   display: flex;
+  flex-direction: column;
   gap: 0;
-  overflow-x: auto;
-  padding-bottom: 8px;
-}
-
-.forecast-day {
-  flex-shrink: 0;
 }
 
 .forecast-day:last-child {
-  border-right: none !important;
-}
-
-/* Hide scrollbar but keep functionality */
-.forecast-container::-webkit-scrollbar {
-  height: 6px;
-}
-
-.forecast-container::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.forecast-container::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 3px;
-}
-
-.forecast-container::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  border-bottom: none !important;
 }
 </style>
