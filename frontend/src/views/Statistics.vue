@@ -1,67 +1,66 @@
 <template>
   <div class="statistics-page">
-    <h1 class="mb-3">Statistics</h1>
+    <h1 :style="headingStyle">Statistics</h1>
 
-    <div v-if="loading" class="loading">Loading...</div>
+    <div v-if="loading" :style="loadingStyle">Loading...</div>
 
     <div v-else-if="stats">
       <!-- Overview Stats -->
-      <section class="mb-3">
-        <h2 class="mb-2">Overview</h2>
-        <div class="grid grid-2">
-          <div class="card">
-            <h3 class="stat-label">Total Habits</h3>
-            <p class="stat-value">{{ stats.total_habits }}</p>
+      <section :style="sectionStyle">
+        <h2 :style="subHeadingStyle">Overview</h2>
+        <div class="grid">
+          <div :style="statCardStyle">
+            <h3 :style="statLabelStyle">Total Habits</h3>
+            <p :style="statValueStyle">{{ stats.total_habits }}</p>
           </div>
-          <div class="card">
-            <h3 class="stat-label">Active Habits</h3>
-            <p class="stat-value">{{ stats.active_habits }}</p>
+          <div :style="statCardStyle">
+            <h3 :style="statLabelStyle">Active Habits</h3>
+            <p :style="statValueStyle">{{ stats.active_habits }}</p>
           </div>
-          <div class="card">
-            <h3 class="stat-label">Today's Completion</h3>
-            <p class="stat-value">{{ Math.round(stats.today_completion_rate) }}%</p>
+          <div :style="statCardStyle">
+            <h3 :style="statLabelStyle">Today's Completion</h3>
+            <p :style="statValueStyle">{{ Math.round(stats.today_completion_rate) }}%</p>
           </div>
-          <div class="card">
-            <h3 class="stat-label">Week Completion</h3>
-            <p class="stat-value">{{ Math.round(stats.week_completion) }}%</p>
+          <div :style="statCardStyle">
+            <h3 :style="statLabelStyle">Week Completion</h3>
+            <p :style="statValueStyle">{{ Math.round(stats.week_completion) }}%</p>
           </div>
         </div>
       </section>
 
       <!-- Per-Habit Stats -->
       <section>
-        <h2 class="mb-2">Habit Performance</h2>
-        <div v-if="stats.habit_stats && stats.habit_stats.length > 0" class="grid grid-2">
+        <h2 :style="subHeadingStyle">Habit Performance</h2>
+        <div v-if="stats.habit_stats && stats.habit_stats.length > 0" class="grid">
           <div
             v-for="habitStat in stats.habit_stats"
             :key="habitStat.habit_id"
-            class="card"
-            :style="{ borderLeft: `4px solid ${habitStat.habit_color || '#3b82f6'}` }"
+            :style="habitStatCardStyle(habitStat)"
           >
-            <div class="flex items-center gap-2 mb-2">
-              <span v-if="habitStat.habit_icon" style="font-size: 24px">{{ habitStat.habit_icon }}</span>
-              <h3 style="margin: 0">{{ habitStat.habit_name }}</h3>
+            <div class="habit-header">
+              <span v-if="habitStat.habit_icon" :style="iconStyle">{{ habitStat.habit_icon }}</span>
+              <h3 :style="habitNameStyle">{{ habitStat.habit_name }}</h3>
             </div>
-            <div class="stat-row">
-              <span class="stat-label-small">Completion Rate:</span>
-              <span class="stat-value-small">{{ Math.round(habitStat.completion_rate) }}%</span>
+            <div :style="statRowStyle">
+              <span :style="statLabelSmallStyle">Completion Rate:</span>
+              <span :style="statValueSmallStyle">{{ Math.round(habitStat.completion_rate) }}%</span>
             </div>
-            <div class="stat-row">
-              <span class="stat-label-small">Current Streak:</span>
-              <span class="stat-value-small">{{ habitStat.current_streak }} days</span>
+            <div :style="statRowStyle">
+              <span :style="statLabelSmallStyle">Current Streak:</span>
+              <span :style="statValueSmallStyle">{{ habitStat.current_streak }} days</span>
             </div>
-            <div class="stat-row">
-              <span class="stat-label-small">Longest Streak:</span>
-              <span class="stat-value-small">{{ habitStat.longest_streak }} days</span>
+            <div :style="statRowStyle">
+              <span :style="statLabelSmallStyle">Longest Streak:</span>
+              <span :style="statValueSmallStyle">{{ habitStat.longest_streak }} days</span>
             </div>
-            <div class="stat-row">
-              <span class="stat-label-small">Total Check-ins:</span>
-              <span class="stat-value-small">{{ habitStat.total_check_ins }}</span>
+            <div :style="statRowLastStyle">
+              <span :style="statLabelSmallStyle">Total Check-ins:</span>
+              <span :style="statValueSmallStyle">{{ habitStat.total_check_ins }}</span>
             </div>
           </div>
         </div>
-        <div v-else class="card text-center">
-          <p>No statistics available yet. Start tracking your habits!</p>
+        <div v-else :style="emptyCardStyle">
+          <p :style="emptyTextStyle">No statistics available yet. Start tracking your habits!</p>
         </div>
       </section>
     </div>
@@ -69,8 +68,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { statsService } from '@/services/stats.service'
+import { useTheme } from '@/composables/useTheme'
+
+const { tokens } = useTheme()
 
 const stats = ref(null)
 const loading = ref(true)
@@ -84,46 +86,120 @@ onMounted(async () => {
     loading.value = false
   }
 })
+
+// Computed styles using design tokens
+const headingStyle = computed(() => ({
+  fontSize: tokens.value.typography.sizes['3xl'],
+  color: tokens.value.colors.text,
+  marginBottom: tokens.value.spacing.lg
+}))
+
+const subHeadingStyle = computed(() => ({
+  fontSize: tokens.value.typography.sizes['2xl'],
+  color: tokens.value.colors.text,
+  margin: `0 0 ${tokens.value.spacing.md} 0`
+}))
+
+const loadingStyle = computed(() => ({
+  textAlign: 'center',
+  padding: tokens.value.spacing['3xl'],
+  color: tokens.value.colors.textSecondary
+}))
+
+const sectionStyle = computed(() => ({
+  marginBottom: tokens.value.spacing.lg
+}))
+
+const statCardStyle = computed(() => ({
+  background: tokens.value.colors.bgSecondary,
+  padding: tokens.value.spacing.xl,
+  borderRadius: tokens.value.radius.xl,
+  boxShadow: tokens.value.colors.shadow
+}))
+
+const statLabelStyle = computed(() => ({
+  color: tokens.value.colors.textSecondary,
+  fontSize: tokens.value.typography.sizes.sm,
+  margin: `0 0 ${tokens.value.spacing.sm} 0`,
+  fontWeight: tokens.value.typography.weights.normal
+}))
+
+const statValueStyle = computed(() => ({
+  fontSize: tokens.value.typography.sizes['4xl'],
+  fontWeight: tokens.value.typography.weights.bold,
+  color: tokens.value.colors.primary,
+  margin: 0
+}))
+
+const habitStatCardStyle = (habitStat) => computed(() => ({
+  background: tokens.value.colors.bgSecondary,
+  padding: tokens.value.spacing.xl,
+  borderRadius: tokens.value.radius.xl,
+  boxShadow: tokens.value.colors.shadow,
+  borderLeft: `4px solid ${habitStat.habit_color || tokens.value.colors.primary}`
+}))
+
+const iconStyle = computed(() => ({
+  fontSize: tokens.value.typography.sizes['2xl']
+}))
+
+const habitNameStyle = computed(() => ({
+  margin: 0,
+  fontSize: tokens.value.typography.sizes.lg,
+  color: tokens.value.colors.text,
+  fontWeight: tokens.value.typography.weights.semibold
+}))
+
+const statLabelSmallStyle = computed(() => ({
+  color: tokens.value.colors.textSecondary,
+  fontSize: tokens.value.typography.sizes.sm
+}))
+
+const statValueSmallStyle = computed(() => ({
+  fontWeight: tokens.value.typography.weights.semibold,
+  color: tokens.value.colors.text,
+  fontSize: tokens.value.typography.sizes.sm
+}))
+
+const emptyCardStyle = computed(() => ({
+  background: tokens.value.colors.bgSecondary,
+  padding: tokens.value.spacing.xl,
+  borderRadius: tokens.value.radius.xl,
+  boxShadow: tokens.value.colors.shadow,
+  textAlign: 'center'
+}))
+
+const emptyTextStyle = computed(() => ({
+  color: tokens.value.colors.textSecondary,
+  margin: 0,
+  fontSize: tokens.value.typography.sizes.base
+}))
+
+const statRowStyle = computed(() => ({
+  display: 'flex',
+  justifyContent: 'space-between',
+  padding: `${tokens.value.spacing.sm} 0`,
+  borderBottom: `1px solid ${tokens.value.colors.border}`
+}))
+
+const statRowLastStyle = computed(() => ({
+  display: 'flex',
+  justifyContent: 'space-between',
+  padding: `${tokens.value.spacing.sm} 0`
+}))
 </script>
 
 <style scoped>
-h2 {
-  font-size: 24px;
-  margin: 0;
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
 }
 
-.stat-label {
-  color: var(--text-secondary);
-  font-size: 14px;
-  margin: 0 0 8px 0;
-  font-weight: normal;
-}
-
-.stat-value {
-  font-size: 36px;
-  font-weight: bold;
-  color: var(--primary);
-  margin: 0;
-}
-
-.stat-row {
+.habit-header {
   display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--border);
-}
-
-.stat-row:last-child {
-  border-bottom: none;
-}
-
-.stat-label-small {
-  color: var(--text-secondary);
-  font-size: 14px;
-}
-
-.stat-value-small {
-  font-weight: 600;
-  color: var(--text);
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
 }
 </style>

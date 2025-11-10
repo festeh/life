@@ -1,63 +1,63 @@
 <template>
   <div class="habits-page">
-    <div class="flex justify-between items-center mb-3">
-      <h1>My Habits</h1>
-      <button @click="showModal = true" class="btn btn-primary">+ New Habit</button>
+    <div class="header">
+      <h1 :style="headingStyle">My Habits</h1>
+      <button @click="showModal = true" :style="primaryButtonStyle">+ New Habit</button>
     </div>
 
-    <div v-if="loading" class="loading">Loading...</div>
+    <div v-if="loading" :style="loadingStyle">Loading...</div>
 
-    <div v-else-if="activeHabits.length === 0" class="card text-center">
-      <p>No habits yet. Create your first habit!</p>
+    <div v-else-if="activeHabits.length === 0" :style="emptyCardStyle">
+      <p :style="emptyTextStyle">No habits yet. Create your first habit!</p>
     </div>
 
-    <div v-else class="grid grid-2">
-      <div v-for="habit in activeHabits" :key="habit.id" class="card" :style="{ borderLeft: `4px solid ${habit.color || '#3b82f6'}` }">
-        <div class="flex justify-between items-start mb-2">
-          <div class="flex items-center gap-2">
-            <span v-if="habit.icon" style="font-size: 24px">{{ habit.icon }}</span>
-            <h3 style="margin: 0">{{ habit.name }}</h3>
+    <div v-else class="grid">
+      <div v-for="habit in activeHabits" :key="habit.id" :style="habitCardStyle(habit)">
+        <div class="habit-header">
+          <div class="habit-title-section">
+            <span v-if="habit.icon" :style="iconStyle">{{ habit.icon }}</span>
+            <h3 :style="habitNameStyle">{{ habit.name }}</h3>
           </div>
-          <div class="flex gap-2">
-            <button @click="editHabit(habit)" class="btn btn-secondary">Edit</button>
-            <button @click="deleteHabit(habit.id)" class="btn btn-danger">Delete</button>
+          <div class="habit-actions">
+            <button @click="editHabit(habit)" :style="secondaryButtonStyle">Edit</button>
+            <button @click="deleteHabit(habit.id)" :style="dangerButtonStyle">Delete</button>
           </div>
         </div>
-        <p v-if="habit.description" style="color: var(--text-secondary); margin: 8px 0">
+        <p v-if="habit.description" :style="descriptionStyle">
           {{ habit.description }}
         </p>
-        <div v-if="habit.category" class="habit-category">{{ habit.category }}</div>
+        <div v-if="habit.category" :style="categoryBadgeStyle">{{ habit.category }}</div>
       </div>
     </div>
 
     <!-- Modal for creating/editing habit -->
-    <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
-      <div class="modal card">
-        <h2 class="mb-3">{{ editingHabit ? 'Edit Habit' : 'New Habit' }}</h2>
+    <div v-if="showModal" :style="modalOverlayStyle" @click.self="closeModal">
+      <div :style="modalContentStyle">
+        <h2 :style="modalHeadingStyle">{{ editingHabit ? 'Edit Habit' : 'New Habit' }}</h2>
         <form @submit.prevent="saveHabit">
-          <div class="form-group">
-            <label class="form-label">Name *</label>
-            <input v-model="formData.name" class="form-input" required />
+          <div :style="formGroupStyle">
+            <label :style="labelStyle">Name *</label>
+            <input v-model="formData.name" :style="inputStyle" required />
           </div>
-          <div class="form-group">
-            <label class="form-label">Description</label>
-            <textarea v-model="formData.description" class="form-textarea" rows="3"></textarea>
+          <div :style="formGroupStyle">
+            <label :style="labelStyle">Description</label>
+            <textarea v-model="formData.description" :style="textareaStyle" rows="3"></textarea>
           </div>
-          <div class="form-group">
-            <label class="form-label">Category</label>
-            <input v-model="formData.category" class="form-input" placeholder="e.g., health, work, personal" />
+          <div :style="formGroupStyle">
+            <label :style="labelStyle">Category</label>
+            <input v-model="formData.category" :style="inputStyle" placeholder="e.g., health, work, personal" />
           </div>
-          <div class="form-group">
-            <label class="form-label">Icon (emoji)</label>
-            <input v-model="formData.icon" class="form-input" placeholder="🏃" maxlength="2" />
+          <div :style="formGroupStyle">
+            <label :style="labelStyle">Icon (emoji)</label>
+            <input v-model="formData.icon" :style="inputStyle" placeholder="🏃" maxlength="2" />
           </div>
-          <div class="form-group">
-            <label class="form-label">Color</label>
-            <input v-model="formData.color" type="color" class="form-input" />
+          <div :style="formGroupStyle">
+            <label :style="labelStyle">Color</label>
+            <input v-model="formData.color" type="color" :style="inputStyle" />
           </div>
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary">Save</button>
-            <button type="button" @click="closeModal" class="btn btn-secondary">Cancel</button>
+          <div class="modal-buttons">
+            <button type="submit" :style="primaryButtonStyle">Save</button>
+            <button type="button" @click="closeModal" :style="secondaryButtonStyle">Cancel</button>
           </div>
         </form>
       </div>
@@ -68,8 +68,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useHabitsStore } from '@/stores/habits'
+import { useTheme } from '@/composables/useTheme'
 
 const habitsStore = useHabitsStore()
+const { tokens } = useTheme()
+
 const loading = ref(true)
 const showModal = ref(false)
 const editingHabit = ref(null)
@@ -134,36 +137,216 @@ const closeModal = () => {
     color: '#3b82f6'
   }
 }
+
+// Computed styles using design tokens
+const headingStyle = computed(() => ({
+  fontSize: tokens.value.typography.sizes['3xl'],
+  color: tokens.value.colors.text,
+  margin: 0
+}))
+
+const loadingStyle = computed(() => ({
+  textAlign: 'center',
+  padding: tokens.value.spacing['3xl'],
+  color: tokens.value.colors.textSecondary
+}))
+
+const emptyCardStyle = computed(() => ({
+  background: tokens.value.colors.bgSecondary,
+  padding: tokens.value.spacing.xl,
+  borderRadius: tokens.value.radius.xl,
+  boxShadow: tokens.value.colors.shadow,
+  textAlign: 'center'
+}))
+
+const emptyTextStyle = computed(() => ({
+  color: tokens.value.colors.textSecondary,
+  margin: 0,
+  fontSize: tokens.value.typography.sizes.base
+}))
+
+const habitCardStyle = (habit) => computed(() => ({
+  background: tokens.value.colors.bgSecondary,
+  padding: tokens.value.spacing.xl,
+  borderRadius: tokens.value.radius.xl,
+  boxShadow: tokens.value.colors.shadow,
+  borderLeft: `4px solid ${habit.color || tokens.value.colors.primary}`
+}))
+
+const iconStyle = computed(() => ({
+  fontSize: tokens.value.typography.sizes['2xl']
+}))
+
+const habitNameStyle = computed(() => ({
+  margin: 0,
+  fontSize: tokens.value.typography.sizes.lg,
+  color: tokens.value.colors.text,
+  fontWeight: tokens.value.typography.weights.semibold
+}))
+
+const descriptionStyle = computed(() => ({
+  color: tokens.value.colors.textSecondary,
+  margin: `${tokens.value.spacing.sm} 0`,
+  fontSize: tokens.value.typography.sizes.sm
+}))
+
+const categoryBadgeStyle = computed(() => ({
+  display: 'inline-block',
+  padding: `${tokens.value.spacing.xs} ${tokens.value.spacing.md}`,
+  background: tokens.value.colors.bg,
+  borderRadius: tokens.value.radius.full,
+  fontSize: tokens.value.typography.sizes.xs,
+  color: tokens.value.colors.textSecondary,
+  textTransform: 'capitalize'
+}))
+
+const primaryButtonStyle = computed(() => ({
+  padding: `${tokens.value.spacing.sm} ${tokens.value.spacing.lg}`,
+  background: tokens.value.colors.primary,
+  color: 'white',
+  border: 'none',
+  borderRadius: tokens.value.radius.md,
+  fontSize: tokens.value.typography.sizes.sm,
+  fontWeight: tokens.value.typography.weights.medium,
+  cursor: 'pointer',
+  transition: tokens.value.transitions.normal
+}))
+
+const secondaryButtonStyle = computed(() => ({
+  padding: `${tokens.value.spacing.sm} ${tokens.value.spacing.lg}`,
+  background: tokens.value.colors.bgSecondary,
+  color: tokens.value.colors.text,
+  border: `1px solid ${tokens.value.colors.border}`,
+  borderRadius: tokens.value.radius.md,
+  fontSize: tokens.value.typography.sizes.sm,
+  fontWeight: tokens.value.typography.weights.medium,
+  cursor: 'pointer',
+  transition: tokens.value.transitions.normal
+}))
+
+const dangerButtonStyle = computed(() => ({
+  padding: `${tokens.value.spacing.sm} ${tokens.value.spacing.lg}`,
+  background: tokens.value.colors.danger,
+  color: 'white',
+  border: 'none',
+  borderRadius: tokens.value.radius.md,
+  fontSize: tokens.value.typography.sizes.sm,
+  fontWeight: tokens.value.typography.weights.medium,
+  cursor: 'pointer',
+  transition: tokens.value.transitions.normal
+}))
+
+const modalOverlayStyle = computed(() => ({
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  background: 'rgba(0, 0, 0, 0.5)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  zIndex: 1000
+}))
+
+const modalContentStyle = computed(() => ({
+  background: tokens.value.colors.bgSecondary,
+  padding: tokens.value.spacing.xl,
+  borderRadius: tokens.value.radius.xl,
+  boxShadow: tokens.value.colors.shadow,
+  maxWidth: '500px',
+  width: '90%',
+  maxHeight: '90vh',
+  overflowY: 'auto'
+}))
+
+const modalHeadingStyle = computed(() => ({
+  fontSize: tokens.value.typography.sizes['2xl'],
+  color: tokens.value.colors.text,
+  margin: `0 0 ${tokens.value.spacing.lg} 0`
+}))
+
+const formGroupStyle = computed(() => ({
+  marginBottom: tokens.value.spacing.lg
+}))
+
+const labelStyle = computed(() => ({
+  display: 'block',
+  marginBottom: tokens.value.spacing.sm,
+  fontSize: tokens.value.typography.sizes.sm,
+  fontWeight: tokens.value.typography.weights.medium,
+  color: tokens.value.colors.text
+}))
+
+const inputStyle = computed(() => ({
+  width: '100%',
+  padding: tokens.value.spacing.sm,
+  background: tokens.value.colors.bg,
+  border: `1px solid ${tokens.value.colors.border}`,
+  borderRadius: tokens.value.radius.md,
+  fontSize: tokens.value.typography.sizes.base,
+  color: tokens.value.colors.text,
+  transition: tokens.value.transitions.normal
+}))
+
+const textareaStyle = computed(() => ({
+  width: '100%',
+  padding: tokens.value.spacing.sm,
+  background: tokens.value.colors.bg,
+  border: `1px solid ${tokens.value.colors.border}`,
+  borderRadius: tokens.value.radius.md,
+  fontSize: tokens.value.typography.sizes.base,
+  color: tokens.value.colors.text,
+  fontFamily: 'inherit',
+  resize: 'vertical',
+  transition: tokens.value.transitions.normal
+}))
 </script>
 
 <style scoped>
-.habit-category {
-  display: inline-block;
-  padding: 4px 12px;
-  background: var(--surface);
-  border-radius: 12px;
-  font-size: 12px;
-  color: var(--text-secondary);
-  text-transform: capitalize;
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
 }
 
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.habit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.habit-title-section {
   display: flex;
   align-items: center;
-  justify-content: center;
-  z-index: 1000;
+  gap: 8px;
 }
 
-.modal {
-  max-width: 500px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
+.habit-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: #6366f1;
 }
 </style>

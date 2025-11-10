@@ -1,23 +1,23 @@
 <template>
   <div class="dashboard">
-    <h1 class="mb-3">Dashboard</h1>
+    <h1 :style="headingStyle">Dashboard</h1>
 
-    <div v-if="loading" class="loading">Loading...</div>
+    <div v-if="loading" :style="loadingStyle">Loading...</div>
 
     <div v-else>
       <!-- Today's Habits -->
-      <section class="mb-3">
-        <div class="flex justify-between items-center mb-2">
-          <h2>Today's Habits</h2>
-          <RouterLink to="/habits" class="btn btn-primary">Manage Habits</RouterLink>
+      <section :style="sectionStyle">
+        <div class="section-header">
+          <h2 :style="subHeadingStyle">Today's Habits</h2>
+          <RouterLink to="/habits" :style="buttonStyle">Manage Habits</RouterLink>
         </div>
 
-        <div v-if="activeHabits.length === 0" class="card text-center">
-          <p>No habits yet. Create your first habit to get started!</p>
-          <RouterLink to="/habits" class="btn btn-primary mt-2">Create Habit</RouterLink>
+        <div v-if="activeHabits.length === 0" :style="emptyCardStyle">
+          <p :style="emptyTextStyle">No habits yet. Create your first habit to get started!</p>
+          <RouterLink to="/habits" :style="{ ...buttonStyle, marginTop: tokens.spacing.md, display: 'inline-block' }">Create Habit</RouterLink>
         </div>
 
-        <div v-else class="grid grid-2">
+        <div v-else class="grid">
           <HabitCard
             v-for="habit in activeHabits"
             :key="habit.id"
@@ -29,15 +29,15 @@
 
       <!-- Quick Stats -->
       <section>
-        <h2 class="mb-2">Quick Stats</h2>
-        <div class="grid grid-2">
-          <div class="card">
-            <h3 class="text-secondary">Active Habits</h3>
-            <p class="stat-number">{{ activeHabits.length }}</p>
+        <h2 :style="{ ...subHeadingStyle, marginBottom: tokens.spacing.lg }">Quick Stats</h2>
+        <div class="grid">
+          <div :style="cardStyle">
+            <h3 :style="statLabelStyle">Active Habits</h3>
+            <p :style="statNumberStyle">{{ activeHabits.length }}</p>
           </div>
-          <div class="card">
-            <h3 class="text-secondary">Today's Progress</h3>
-            <p class="stat-number">{{ todayProgress }}%</p>
+          <div :style="cardStyle">
+            <h3 :style="statLabelStyle">Today's Progress</h3>
+            <p :style="statNumberStyle">{{ todayProgress }}%</p>
           </div>
         </div>
       </section>
@@ -50,10 +50,12 @@ import { ref, computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useHabitsStore } from '@/stores/habits'
 import { useCheckInsStore } from '@/stores/checkins'
+import { useTheme } from '@/composables/useTheme'
 import HabitCard from '@/components/habits/HabitCard.vue'
 
 const habitsStore = useHabitsStore()
 const checkInsStore = useCheckInsStore()
+const { tokens } = useTheme()
 
 const loading = ref(true)
 
@@ -80,24 +82,88 @@ onMounted(async () => {
 const handleCheckIn = async () => {
   await checkInsStore.fetchTodayCheckIns()
 }
+
+// Computed styles
+const headingStyle = computed(() => ({
+  fontSize: tokens.value.typography.sizes['3xl'],
+  marginBottom: tokens.value.spacing.xl,
+  color: tokens.value.colors.text
+}))
+
+const subHeadingStyle = computed(() => ({
+  fontSize: tokens.value.typography.sizes['2xl'],
+  margin: 0,
+  color: tokens.value.colors.text
+}))
+
+const loadingStyle = computed(() => ({
+  textAlign: 'center',
+  padding: tokens.value.spacing['3xl'],
+  color: tokens.value.colors.textSecondary
+}))
+
+const sectionStyle = computed(() => ({
+  marginBottom: tokens.value.spacing.xl
+}))
+
+const cardStyle = computed(() => ({
+  background: tokens.value.colors.bgSecondary,
+  padding: tokens.value.spacing.xl,
+  borderRadius: tokens.value.radius.xl,
+  boxShadow: tokens.value.colors.shadow
+}))
+
+const emptyCardStyle = computed(() => ({
+  ...cardStyle.value,
+  textAlign: 'center'
+}))
+
+const emptyTextStyle = computed(() => ({
+  color: tokens.value.colors.textSecondary,
+  margin: 0
+}))
+
+const buttonStyle = computed(() => ({
+  padding: `${tokens.value.spacing.sm} ${tokens.value.spacing.lg}`,
+  background: tokens.value.colors.primary,
+  color: 'white',
+  textDecoration: 'none',
+  borderRadius: tokens.value.radius.md,
+  fontSize: tokens.value.typography.sizes.sm,
+  fontWeight: tokens.value.typography.weights.medium,
+  transition: tokens.value.transitions.normal
+}))
+
+const statLabelStyle = computed(() => ({
+  color: tokens.value.colors.textSecondary,
+  fontSize: tokens.value.typography.sizes.sm,
+  margin: `0 0 ${tokens.value.spacing.sm} 0`,
+  fontWeight: tokens.value.typography.weights.normal
+}))
+
+const statNumberStyle = computed(() => ({
+  fontSize: tokens.value.typography.sizes['4xl'],
+  fontWeight: tokens.value.typography.weights.bold,
+  color: tokens.value.colors.primary,
+  margin: 0
+}))
 </script>
 
 <style scoped>
-h2 {
-  font-size: 24px;
-  margin: 0;
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
 }
 
-.text-secondary {
-  color: var(--text-secondary);
-  font-size: 14px;
-  margin: 0 0 8px 0;
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
 }
 
-.stat-number {
-  font-size: 36px;
-  font-weight: bold;
-  color: var(--primary);
-  margin: 0;
+a:hover {
+  opacity: 0.9;
 }
 </style>
