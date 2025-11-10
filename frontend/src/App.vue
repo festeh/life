@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" :style="appStyle">
     <AppHeader v-if="isAuthenticated" />
     <main class="main-content">
       <RouterView />
@@ -12,13 +12,20 @@ import { computed, onMounted } from 'vue'
 import { RouterView, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useThemeStore } from '@/stores/theme'
+import { useTheme } from '@/composables/useTheme'
 import AppHeader from '@/components/common/AppHeader.vue'
 
 const authStore = useAuthStore()
 const themeStore = useThemeStore()
 const router = useRouter()
+const { tokens } = useTheme()
 
 const isAuthenticated = computed(() => authStore.isAuthenticated)
+
+const appStyle = computed(() => ({
+  minHeight: '100vh',
+  background: tokens.value.colors.bg
+}))
 
 onMounted(async () => {
   // Initialize theme
@@ -49,10 +56,6 @@ onMounted(async () => {
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-}
-
-#app {
-  min-height: 100vh;
 }
 
 .main-content {
