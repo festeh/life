@@ -67,7 +67,7 @@ const loadingStyle = computed(() => ({
 const dayCardStyle = computed(() => ({
   background: tokens.value.colors.bg,
   padding: tokens.value.spacing.md,
-  borderRadius: tokens.value.radius.md,
+  borderRadius: tokens.value.radius.lg,
   border: `1px solid ${tokens.value.colors.border}`,
   textAlign: 'center',
   display: 'flex',
