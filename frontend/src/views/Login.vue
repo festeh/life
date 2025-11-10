@@ -6,17 +6,24 @@
         Track your habits, build streaks, and visualize your progress
       </p>
       <button @click="handleLogin" class="btn btn-primary" style="width: 100%">
-        Login with Google
+        {{ isDevMode ? 'Dev Login' : 'Login with Google' }}
       </button>
     </div>
   </div>
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { authService } from '@/services/auth.service'
 
+const isDevMode = computed(() => import.meta.env.DEV)
+
 const handleLogin = () => {
-  window.location.href = authService.getGoogleLoginUrl()
+  if (isDevMode.value) {
+    window.location.href = authService.getDevLoginUrl()
+  } else {
+    window.location.href = authService.getGoogleLoginUrl()
+  }
 }
 </script>
 

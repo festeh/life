@@ -1,14 +1,14 @@
 <template>
   <div class="settings">
-    <h1>Settings</h1>
+    <h1 :style="headingStyle">Settings</h1>
 
-    <div class="settings-section">
-      <h2>Appearance</h2>
+    <div class="settings-section" :style="sectionStyle">
+      <h2 class="section-title" :style="sectionTitleStyle">Appearance</h2>
 
       <div class="setting-item">
         <div class="setting-info">
-          <h3>Theme</h3>
-          <p>Choose your preferred color theme</p>
+          <h3 class="setting-label" :style="labelStyle">Theme</h3>
+          <p :style="descriptionStyle">Choose your preferred color theme</p>
         </div>
 
         <div class="theme-picker">
@@ -17,6 +17,7 @@
             :key="themeOption.value"
             @click="selectTheme(themeOption.value)"
             :class="['theme-option', { active: theme === themeOption.value }]"
+            :style="themeButtonStyle(themeOption.value)"
           >
             <div :class="['theme-preview', themeOption.value]">
               <div class="preview-header"></div>
@@ -25,26 +26,26 @@
                 <div class="preview-block"></div>
               </div>
             </div>
-            <span class="theme-name">{{ themeOption.label }}</span>
+            <span class="theme-name" :style="themeLabelStyle(themeOption.value)">{{ themeOption.label }}</span>
           </button>
         </div>
       </div>
     </div>
 
-    <div class="settings-section">
-      <h2>Account</h2>
+    <div class="settings-section" :style="sectionStyle">
+      <h2 class="section-title" :style="sectionTitleStyle">Account</h2>
 
       <div class="setting-item">
         <div class="setting-info">
-          <h3>Email</h3>
-          <p>{{ userEmail }}</p>
+          <h3 class="setting-label" :style="labelStyle">Email</h3>
+          <p :style="descriptionStyle">{{ userEmail }}</p>
         </div>
       </div>
 
       <div class="setting-item">
         <div class="setting-info">
-          <h3>Name</h3>
-          <p>{{ userName }}</p>
+          <h3 class="setting-label" :style="labelStyle">Name</h3>
+          <p :style="descriptionStyle">{{ userName }}</p>
         </div>
       </div>
     </div>
@@ -55,9 +56,11 @@
 import { computed } from 'vue'
 import { useThemeStore } from '@/stores/theme'
 import { useAuthStore } from '@/stores/auth'
+import { useTheme } from '@/composables/useTheme'
 
 const themeStore = useThemeStore()
 const authStore = useAuthStore()
+const { tokens } = useTheme()
 
 const theme = computed(() => themeStore.theme)
 const userEmail = computed(() => authStore.user?.email || '')
@@ -72,6 +75,61 @@ const themes = [
 const selectTheme = (newTheme) => {
   themeStore.setTheme(newTheme)
 }
+
+const themeButtonStyle = (themeValue) => {
+  const isActive = theme.value === themeValue
+  return {
+    background: isActive ? tokens.value.colors.primaryLight : tokens.value.colors.bg,
+    borderColor: isActive ? tokens.value.colors.primary : tokens.value.colors.border,
+    borderRadius: tokens.value.radius.lg,
+    padding: tokens.value.spacing.md,
+    transition: tokens.value.transitions.normal
+  }
+}
+
+const themeLabelStyle = (themeValue) => {
+  const isActive = theme.value === themeValue
+  return {
+    color: isActive ? 'white' : tokens.value.colors.text,
+    fontWeight: isActive ? tokens.value.typography.weights.semibold : tokens.value.typography.weights.medium,
+    fontSize: tokens.value.typography.sizes.sm
+  }
+}
+
+// Computed styles using design tokens
+const headingStyle = computed(() => ({
+  color: tokens.value.colors.text,
+  fontSize: tokens.value.typography.sizes['3xl'],
+  marginBottom: tokens.value.spacing['2xl']
+}))
+
+const sectionStyle = computed(() => ({
+  background: tokens.value.colors.bgSecondary,
+  boxShadow: tokens.value.colors.shadow,
+  borderRadius: tokens.value.radius.xl,
+  padding: tokens.value.spacing.xl,
+  marginBottom: tokens.value.spacing.xl
+}))
+
+const sectionTitleStyle = computed(() => ({
+  color: tokens.value.colors.text,
+  fontSize: tokens.value.typography.sizes.xl,
+  fontWeight: tokens.value.typography.weights.bold,
+  borderBottomColor: tokens.value.colors.border,
+  paddingBottom: tokens.value.spacing.md,
+  marginBottom: tokens.value.spacing.xl
+}))
+
+const labelStyle = computed(() => ({
+  color: tokens.value.colors.text,
+  fontSize: tokens.value.typography.sizes.base,
+  fontWeight: tokens.value.typography.weights.semibold
+}))
+
+const descriptionStyle = computed(() => ({
+  color: tokens.value.colors.textSecondary,
+  fontSize: tokens.value.typography.sizes.sm
+}))
 </script>
 
 <style scoped>
@@ -80,28 +138,9 @@ const selectTheme = (newTheme) => {
   margin: 0 auto;
 }
 
-h1 {
-  font-size: 32px;
-  margin-bottom: 32px;
-  color: var(--text);
-}
-
-.settings-section {
-  background: var(--card-bg);
-  border-radius: 12px;
-  padding: 24px;
-  margin-bottom: 24px;
-  box-shadow: var(--shadow);
-}
-
-.settings-section h2 {
-  font-size: 20px;
-  margin-bottom: 24px;
-  color: var(--text);
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 12px;
-  font-weight: 700;
-  opacity: 1;
+.section-title {
+  margin: 0;
+  border-bottom: 1px solid;
 }
 
 .setting-item {
@@ -112,18 +151,12 @@ h1 {
   margin-bottom: 0;
 }
 
-.setting-info h3 {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 4px;
-  color: var(--text);
-  opacity: 1;
+.setting-label {
+  margin: 0 0 4px 0;
 }
 
 .setting-info p {
-  font-size: 14px;
-  color: var(--text-secondary);
-  opacity: 1;
+  margin: 0;
 }
 
 .theme-picker {
@@ -133,12 +166,8 @@ h1 {
 }
 
 .theme-option {
-  background: var(--bg);
-  border: 2px solid var(--border);
-  border-radius: 8px;
-  padding: 12px;
+  border: 2px solid;
   cursor: pointer;
-  transition: all 0.2s;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -146,18 +175,8 @@ h1 {
 }
 
 .theme-option:hover {
-  border-color: var(--primary);
+  border-color: #6366f1;
   transform: translateY(-2px);
-}
-
-.theme-option.active {
-  border-color: var(--primary);
-  background: var(--primary-light);
-}
-
-.theme-option.active .theme-name {
-  color: white;
-  font-weight: 600;
 }
 
 .theme-preview {
@@ -223,11 +242,5 @@ h1 {
 
 .theme-preview.auto .preview-block:last-child {
   background: linear-gradient(to right, #d0d0d0 50%, #4a4a4a 50%);
-}
-
-.theme-name {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text);
 }
 </style>

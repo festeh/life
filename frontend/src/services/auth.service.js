@@ -7,6 +7,10 @@ export const authService = {
     return `${API_BASE_URL}/api/v1/auth/google/login`
   },
 
+  getDevLoginUrl() {
+    return `${API_BASE_URL}/api/v1/auth/dev/login`
+  },
+
   async getCurrentUser() {
     return api.get('/auth/me')
   },

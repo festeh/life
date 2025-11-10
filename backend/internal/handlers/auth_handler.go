@@ -97,3 +97,40 @@ func (h *AuthHandler) GetCurrentUser(c *gin.Context) {
 func (h *AuthHandler) Logout(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "logged out successfully"})
 }
+
+// DevLogin is a development-only endpoint that bypasses OAuth
+func (h *AuthHandler) DevLogin(c *gin.Context) {
+	// Only allow in development
+	if h.config.Server.Environment != "development" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "dev login only available in development", "code": "FORBIDDEN"})
+		return
+	}
+
+	// Create or get dev user
+	user, err := h.userService.CreateOrUpdate(
+		"dev-user-id",
+		h.config.OAuth.AllowedEmail,
+		"Dev User",
+		"",
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create user", "code": "INTERNAL_ERROR"})
+		return
+	}
+
+	// Generate JWT token
+	token, err := auth.GenerateJWT(user.ID, user.Email, user.Name, h.config.JWT.Secret, h.config.JWT.Expiration)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate token", "code": "INTERNAL_ERROR"})
+		return
+	}
+
+	// Redirect to frontend with token
+	frontendURL := os.Getenv("FRONTEND_URL")
+	if frontendURL == "" {
+		frontendURL = "http://localhost:5173"
+	}
+
+	redirectURL := fmt.Sprintf("%s?token=%s", frontendURL, token)
+	c.Redirect(http.StatusTemporaryRedirect, redirectURL)
+}
