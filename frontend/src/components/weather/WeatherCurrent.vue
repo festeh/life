@@ -20,9 +20,21 @@
       </div>
 
       <div class="weather-details">
+        <div v-if="current.feelsLike !== null" :style="detailStyle">
+          <span :style="detailLabelStyle">Feels like</span>
+          <span :style="detailValueStyle">{{ current.feelsLike }}°C</span>
+        </div>
         <div :style="detailStyle">
           <span :style="detailLabelStyle">Wind speed</span>
           <span :style="detailValueStyle">{{ current.windSpeed }} km/h</span>
+        </div>
+        <div v-if="current.humidity !== null" :style="detailStyle">
+          <span :style="detailLabelStyle">Humidity</span>
+          <span :style="detailValueStyle">{{ current.humidity }}%</span>
+        </div>
+        <div v-if="current.uvIndex !== null && current.uvIndex >= 6" :style="detailStyle">
+          <span :style="detailLabelStyle">UV Index</span>
+          <span :style="detailValueStyle">{{ current.uvIndex }}</span>
         </div>
       </div>
 

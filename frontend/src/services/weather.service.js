@@ -64,6 +64,7 @@ export const weatherService = {
         latitude: latitude.toFixed(4),
         longitude: longitude.toFixed(4),
         current_weather: 'true',
+        hourly: 'relativehumidity_2m,apparent_temperature,uv_index',
         daily: 'temperature_2m_max,temperature_2m_min,weathercode',
         timezone: 'auto',
         forecast_days: 7
@@ -79,11 +80,24 @@ export const weatherService = {
 
       // Parse current weather
       const currentTime = new Date(data.current_weather.time)
+
+      // Find current hour index for hourly data
+      const currentHour = currentTime.getHours()
+      const currentDateStr = currentTime.toISOString().split('T')[0]
+      const currentHourIndex = data.hourly.time.findIndex(t => {
+        const hourTime = new Date(t)
+        return hourTime.toISOString().split('T')[0] === currentDateStr &&
+               hourTime.getHours() === currentHour
+      })
+
       const current = {
         temperature: Math.round(data.current_weather.temperature),
         weatherCode: data.current_weather.weathercode,
         ...getWeatherInfo(data.current_weather.weathercode, currentTime),
         windSpeed: Math.round(data.current_weather.windspeed),
+        humidity: currentHourIndex >= 0 ? Math.round(data.hourly.relativehumidity_2m[currentHourIndex]) : null,
+        feelsLike: currentHourIndex >= 0 ? Math.round(data.hourly.apparent_temperature[currentHourIndex]) : null,
+        uvIndex: currentHourIndex >= 0 ? Math.round(data.hourly.uv_index[currentHourIndex] * 10) / 10 : null,
         time: currentTime
       }
 
