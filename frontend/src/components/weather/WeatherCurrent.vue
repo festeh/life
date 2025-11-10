@@ -8,7 +8,11 @@
 
     <div v-else-if="current" class="weather-content">
       <div class="weather-main">
-        <div class="weather-icon">{{ current.icon }}</div>
+        <WeatherIcon
+          :icon="current.iconName"
+          :emoji="current.icon"
+          size="64px"
+        />
         <div class="weather-temp">
           <span :style="temperatureStyle">{{ current.temperature }}°C</span>
           <span :style="descriptionStyle">{{ current.description }}</span>
@@ -33,6 +37,7 @@
 import { computed } from 'vue'
 import { useWeatherStore } from '@/stores/weather'
 import { useTheme } from '@/composables/useTheme'
+import WeatherIcon from './WeatherIcon.vue'
 
 const weatherStore = useWeatherStore()
 const { tokens } = useTheme()
@@ -115,11 +120,6 @@ const timestampStyle = computed(() => ({
   display: flex;
   align-items: center;
   gap: 24px;
-}
-
-.weather-icon {
-  font-size: 64px;
-  line-height: 1;
 }
 
 .weather-temp {

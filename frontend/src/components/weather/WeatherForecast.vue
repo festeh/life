@@ -12,7 +12,11 @@
         class="forecast-day"
       >
         <div :style="dayNameStyle">{{ getDayName(day.date, index) }}</div>
-        <div class="forecast-icon">{{ day.icon }}</div>
+        <WeatherIcon
+          :icon="day.iconName"
+          :emoji="day.icon"
+          size="32px"
+        />
         <div :style="tempRangeStyle">
           <span :style="highTempStyle">{{ day.high }}°</span>
           <span :style="lowTempStyle">{{ day.low }}°</span>
@@ -27,6 +31,7 @@
 import { computed } from 'vue'
 import { useWeatherStore } from '@/stores/weather'
 import { useTheme } from '@/composables/useTheme'
+import WeatherIcon from './WeatherIcon.vue'
 
 const weatherStore = useWeatherStore()
 const { tokens } = useTheme()
@@ -114,11 +119,6 @@ const conditionStyle = computed(() => ({
 
 .forecast-day {
   flex-shrink: 0;
-}
-
-.forecast-icon {
-  font-size: 32px;
-  line-height: 1;
 }
 
 /* Hide scrollbar but keep functionality */

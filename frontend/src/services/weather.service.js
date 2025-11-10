@@ -4,35 +4,51 @@
 const OPEN_METEO_BASE_URL = 'https://api.open-meteo.com/v1'
 
 // Weather code to description mapping (WMO Weather interpretation codes)
+// iconName maps to basmilius/weather-icons, icon is emoji fallback
 const weatherDescriptions = {
-  0: { description: 'Clear sky', icon: '☀️' },
-  1: { description: 'Mainly clear', icon: '🌤️' },
-  2: { description: 'Partly cloudy', icon: '⛅' },
-  3: { description: 'Overcast', icon: '☁️' },
-  45: { description: 'Foggy', icon: '🌫️' },
-  48: { description: 'Depositing rime fog', icon: '🌫️' },
-  51: { description: 'Light drizzle', icon: '🌦️' },
-  53: { description: 'Moderate drizzle', icon: '🌦️' },
-  55: { description: 'Dense drizzle', icon: '🌧️' },
-  61: { description: 'Slight rain', icon: '🌧️' },
-  63: { description: 'Moderate rain', icon: '🌧️' },
-  65: { description: 'Heavy rain', icon: '⛈️' },
-  71: { description: 'Slight snow', icon: '🌨️' },
-  73: { description: 'Moderate snow', icon: '🌨️' },
-  75: { description: 'Heavy snow', icon: '❄️' },
-  77: { description: 'Snow grains', icon: '🌨️' },
-  80: { description: 'Slight rain showers', icon: '🌦️' },
-  81: { description: 'Moderate rain showers', icon: '🌧️' },
-  82: { description: 'Violent rain showers', icon: '⛈️' },
-  85: { description: 'Slight snow showers', icon: '🌨️' },
-  86: { description: 'Heavy snow showers', icon: '❄️' },
-  95: { description: 'Thunderstorm', icon: '⛈️' },
-  96: { description: 'Thunderstorm with slight hail', icon: '⛈️' },
-  99: { description: 'Thunderstorm with heavy hail', icon: '⛈️' }
+  0: { description: 'Clear sky', icon: '☀️', iconName: 'clear' },
+  1: { description: 'Mainly clear', icon: '🌤️', iconName: 'partly-cloudy' },
+  2: { description: 'Partly cloudy', icon: '⛅', iconName: 'partly-cloudy' },
+  3: { description: 'Overcast', icon: '☁️', iconName: 'overcast' },
+  45: { description: 'Foggy', icon: '🌫️', iconName: 'fog' },
+  48: { description: 'Depositing rime fog', icon: '🌫️', iconName: 'fog' },
+  51: { description: 'Light drizzle', icon: '🌦️', iconName: 'drizzle' },
+  53: { description: 'Moderate drizzle', icon: '🌦️', iconName: 'drizzle' },
+  55: { description: 'Dense drizzle', icon: '🌧️', iconName: 'drizzle' },
+  61: { description: 'Slight rain', icon: '🌧️', iconName: 'rain' },
+  63: { description: 'Moderate rain', icon: '🌧️', iconName: 'rain' },
+  65: { description: 'Heavy rain', icon: '⛈️', iconName: 'rain' },
+  71: { description: 'Slight snow', icon: '🌨️', iconName: 'snow' },
+  73: { description: 'Moderate snow', icon: '🌨️', iconName: 'snow' },
+  75: { description: 'Heavy snow', icon: '❄️', iconName: 'snow' },
+  77: { description: 'Snow grains', icon: '🌨️', iconName: 'snow' },
+  80: { description: 'Slight rain showers', icon: '🌦️', iconName: 'partly-cloudy-rain' },
+  81: { description: 'Moderate rain showers', icon: '🌧️', iconName: 'rain' },
+  82: { description: 'Violent rain showers', icon: '⛈️', iconName: 'rain' },
+  85: { description: 'Slight snow showers', icon: '🌨️', iconName: 'partly-cloudy-snow' },
+  86: { description: 'Heavy snow showers', icon: '❄️', iconName: 'snow' },
+  95: { description: 'Thunderstorm', icon: '⛈️', iconName: 'thunderstorms' },
+  96: { description: 'Thunderstorm with slight hail', icon: '⛈️', iconName: 'thunderstorms-rain' },
+  99: { description: 'Thunderstorm with heavy hail', icon: '⛈️', iconName: 'thunderstorms-rain' }
 }
 
-function getWeatherInfo(code) {
-  return weatherDescriptions[code] || { description: 'Unknown', icon: '🌡️' }
+// Determine if current time is day or night (simple heuristic: 6am-8pm is day)
+function isDaytime(date = new Date()) {
+  const hour = date.getHours()
+  return hour >= 6 && hour < 20
+}
+
+function getWeatherInfo(code, time) {
+  const info = weatherDescriptions[code] || { description: 'Unknown', icon: '🌡️', iconName: 'not-available' }
+
+  // Add day/night suffix to icon name based on time
+  const timeOfDay = isDaytime(time) ? 'day' : 'night'
+  const iconName = `${info.iconName}-${timeOfDay}`
+
+  return {
+    ...info,
+    iconName
+  }
 }
 
 export const weatherService = {
@@ -62,22 +78,27 @@ export const weatherService = {
       const data = await response.json()
 
       // Parse current weather
+      const currentTime = new Date(data.current_weather.time)
       const current = {
         temperature: Math.round(data.current_weather.temperature),
         weatherCode: data.current_weather.weathercode,
-        ...getWeatherInfo(data.current_weather.weathercode),
+        ...getWeatherInfo(data.current_weather.weathercode, currentTime),
         windSpeed: Math.round(data.current_weather.windspeed),
-        time: new Date(data.current_weather.time)
+        time: currentTime
       }
 
-      // Parse daily forecast
-      const forecast = data.daily.time.slice(0, 7).map((date, index) => ({
-        date: new Date(date),
-        high: Math.round(data.daily.temperature_2m_max[index]),
-        low: Math.round(data.daily.temperature_2m_min[index]),
-        weatherCode: data.daily.weathercode[index],
-        ...getWeatherInfo(data.daily.weathercode[index])
-      }))
+      // Parse daily forecast (use noon as reference time for day/night)
+      const forecast = data.daily.time.slice(0, 7).map((date, index) => {
+        const forecastDate = new Date(date)
+        forecastDate.setHours(12, 0, 0) // Set to noon for day icons
+        return {
+          date: new Date(date),
+          high: Math.round(data.daily.temperature_2m_max[index]),
+          low: Math.round(data.daily.temperature_2m_min[index]),
+          weatherCode: data.daily.weathercode[index],
+          ...getWeatherInfo(data.daily.weathercode[index], forecastDate)
+        }
+      })
 
       return {
         current,
