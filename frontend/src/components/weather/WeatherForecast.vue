@@ -15,7 +15,7 @@
         <WeatherIcon
           :icon="day.iconName"
           :emoji="day.icon"
-          size="32px"
+          size="48px"
         />
         <div :style="tempRangeStyle">
           <span :style="highTempStyle">{{ day.high }}°</span>
