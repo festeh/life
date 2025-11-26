@@ -69,6 +69,12 @@ onMounted(async () => {
   width: 100%;
   max-width: var(--container-max-width);
   margin: 0 auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.main-content::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 @media (min-width: 768px) {

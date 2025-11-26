@@ -21,7 +21,8 @@ export const useWeatherStore = defineStore('weather', {
     lastUpdated: null,
     refreshInterval: null,
     tick: 0,
-    tickInterval: null
+    tickInterval: null,
+    hourlyExpanded: false
   }),
 
   getters: {

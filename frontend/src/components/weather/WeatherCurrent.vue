@@ -1,5 +1,5 @@
 <template>
-  <div :style="weatherCardStyle" @click="toggleExpanded" class="weather-card">
+  <div :style="weatherCardStyle" @click="toggleHourly" class="weather-card">
     <div v-if="loading" :style="loadingStyle">Loading weather...</div>
 
     <div v-else-if="error" :style="errorStyle">
@@ -41,28 +41,6 @@
         </div>
       </div>
 
-      <!-- Hourly forecast (expandable) -->
-      <div class="hourly-section" :class="{ expanded }">
-        <div class="hourly-content">
-          <div v-if="hourlyToday.length === 0" :style="{ color: tokens.colors.textSecondary, padding: '12px 0' }">
-            No more hours today
-          </div>
-          <table v-else class="hourly-table">
-            <tr v-for="hour in hourlyToday" :key="hour.time.toISOString()">
-              <td :style="hourTimeStyle">{{ formatHour(hour.time) }}</td>
-              <td>
-                <WeatherIcon
-                  :icon="hour.iconName"
-                  :emoji="hour.icon"
-                  size="24px"
-                />
-              </td>
-              <td :style="hourTempStyle">{{ hour.temperature }}°</td>
-            </tr>
-          </table>
-        </div>
-      </div>
-
       <div v-if="lastUpdatedText" :style="timestampStyle">
         Last updated: {{ lastUpdatedText }}
       </div>
@@ -71,7 +49,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useWeatherStore } from '@/stores/weather'
 import { useTheme } from '@/composables/useTheme'
 import WeatherIcon from './WeatherIcon.vue'
@@ -79,20 +57,13 @@ import WeatherIcon from './WeatherIcon.vue'
 const weatherStore = useWeatherStore()
 const { tokens } = useTheme()
 
-const expanded = ref(false)
-
 const current = computed(() => weatherStore.current)
-const hourlyToday = computed(() => weatherStore.hourlyToday)
 const loading = computed(() => weatherStore.loading)
 const error = computed(() => weatherStore.error)
 const lastUpdatedText = computed(() => weatherStore.lastUpdatedText)
 
-const toggleExpanded = () => {
-  expanded.value = !expanded.value
-}
-
-const formatHour = (date) => {
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+const toggleHourly = () => {
+  weatherStore.hourlyExpanded = !weatherStore.hourlyExpanded
 }
 
 // Computed styles
@@ -102,7 +73,9 @@ const weatherCardStyle = computed(() => ({
   borderRadius: tokens.value.radius.xl,
   boxShadow: tokens.value.colors.shadow,
   width: 'fit-content',
-  maxWidth: '100%'
+  maxWidth: '100%',
+  cursor: 'pointer',
+  userSelect: 'none'
 }))
 
 const loadingStyle = computed(() => ({
@@ -150,27 +123,9 @@ const timestampStyle = computed(() => ({
   color: tokens.value.colors.textTertiary,
   textAlign: 'center'
 }))
-
-const hourTimeStyle = computed(() => ({
-  fontSize: tokens.value.typography.sizes.sm,
-  color: tokens.value.colors.textSecondary,
-  paddingRight: tokens.value.spacing.md
-}))
-
-const hourTempStyle = computed(() => ({
-  fontSize: tokens.value.typography.sizes.base,
-  fontWeight: tokens.value.typography.weights.medium,
-  color: tokens.value.colors.text,
-  paddingLeft: tokens.value.spacing.md
-}))
 </script>
 
 <style scoped>
-.weather-card {
-  cursor: pointer;
-  user-select: none;
-}
-
 .weather-content {
   display: flex;
   flex-direction: column;
@@ -202,32 +157,5 @@ const hourTempStyle = computed(() => ({
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
-}
-
-.hourly-section {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows 0.3s ease;
-}
-
-.hourly-section.expanded {
-  grid-template-rows: 1fr;
-}
-
-.hourly-content {
-  overflow: hidden;
-  border-top: 1px solid v-bind('tokens.colors.border');
-  margin-top: 8px;
-  padding-top: 12px;
-}
-
-.hourly-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.hourly-table td {
-  padding: 6px 0;
-  vertical-align: middle;
 }
 </style>

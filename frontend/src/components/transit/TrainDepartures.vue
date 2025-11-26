@@ -22,8 +22,8 @@
         <div class="departure-info">
           <div class="departure-time">
             <span :style="timeStyle">{{ departure.time }}</span>
-            <span v-if="departure.delay" :style="delayStyle">{{ departure.delay }}m</span>
             <span :style="minutesStyle">{{ formatMinutes(departure.minutesUntil) }}</span>
+            <span v-if="departure.delay" :style="delayStyle">{{ departure.delay }}m</span>
           </div>
         </div>
       </div>
