@@ -39,9 +39,6 @@
             </div>
           </div>
         </div>
-        <div class="expand-indicator" :class="{ expanded }">
-          <span>▼</span>
-        </div>
       </div>
 
       <!-- Hourly forecast (expandable) -->
@@ -205,18 +202,6 @@ const hourTempStyle = computed(() => ({
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
-}
-
-.expand-indicator {
-  display: flex;
-  align-items: center;
-  color: v-bind('tokens.colors.textTertiary');
-  font-size: 12px;
-  transition: transform 0.3s ease;
-}
-
-.expand-indicator.expanded {
-  transform: rotate(180deg);
 }
 
 .hourly-section {
