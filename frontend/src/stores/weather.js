@@ -14,6 +14,7 @@ const REFRESH_INTERVAL = 30 * 60 * 1000
 export const useWeatherStore = defineStore('weather', {
   state: () => ({
     current: null,
+    hourlyToday: [],
     forecast: [],
     loading: false,
     error: null,
@@ -59,6 +60,7 @@ export const useWeatherStore = defineStore('weather', {
         )
 
         this.current = data.current
+        this.hourlyToday = data.hourlyToday
         this.forecast = data.forecast.slice(0, 5) // 5-day forecast
         this.lastUpdated = new Date()
 

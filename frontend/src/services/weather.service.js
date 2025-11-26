@@ -64,7 +64,7 @@ export const weatherService = {
         latitude: latitude.toFixed(4),
         longitude: longitude.toFixed(4),
         current_weather: 'true',
-        hourly: 'relativehumidity_2m,apparent_temperature,uv_index',
+        hourly: 'temperature_2m,weathercode,relativehumidity_2m,apparent_temperature,uv_index',
         daily: 'temperature_2m_max,temperature_2m_min,weathercode',
         timezone: 'auto',
         forecast_days: 7
@@ -101,6 +101,23 @@ export const weatherService = {
         time: currentTime
       }
 
+      // Parse hourly forecast for remaining hours of today
+      const now = new Date()
+      const todayEnd = new Date(now)
+      todayEnd.setHours(23, 59, 59, 999)
+
+      const hourlyToday = data.hourly.time
+        .map((timeStr, index) => {
+          const time = new Date(timeStr)
+          return {
+            time,
+            temperature: Math.round(data.hourly.temperature_2m[index]),
+            weatherCode: data.hourly.weathercode[index],
+            ...getWeatherInfo(data.hourly.weathercode[index], time)
+          }
+        })
+        .filter(hour => hour.time >= now && hour.time <= todayEnd)
+
       // Parse daily forecast (use noon as reference time for day/night)
       const forecast = data.daily.time.slice(0, 7).map((date, index) => {
         const forecastDate = new Date(date)
@@ -116,6 +133,7 @@ export const weatherService = {
 
       return {
         current,
+        hourlyToday,
         forecast,
         location: {
           latitude: data.latitude,
