@@ -18,12 +18,15 @@ export const useWeatherStore = defineStore('weather', {
     loading: false,
     error: null,
     lastUpdated: null,
-    refreshInterval: null
+    refreshInterval: null,
+    tick: 0,
+    tickInterval: null
   }),
 
   getters: {
     // Get "last updated" time display
     lastUpdatedText: (state) => {
+      void state.tick // Reference to trigger reactivity on each tick
       if (!state.lastUpdated) return ''
 
       const now = new Date()
@@ -81,6 +84,11 @@ export const useWeatherStore = defineStore('weather', {
         console.log('Auto-refreshing weather...')
         this.fetchWeather()
       }, REFRESH_INTERVAL)
+
+      // Set up 1-minute tick for reactive "last updated" text
+      this.tickInterval = setInterval(() => {
+        this.tick++
+      }, 60000)
     },
 
     // Stop auto-refresh when component unmounts
@@ -88,6 +96,10 @@ export const useWeatherStore = defineStore('weather', {
       if (this.refreshInterval) {
         clearInterval(this.refreshInterval)
         this.refreshInterval = null
+      }
+      if (this.tickInterval) {
+        clearInterval(this.tickInterval)
+        this.tickInterval = null
       }
     }
   }

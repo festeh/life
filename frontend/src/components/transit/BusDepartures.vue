@@ -1,8 +1,5 @@
 <template>
   <div :style="transitCardStyle">
-    <h3 :style="titleStyle">Bus from Kirchhofstr.</h3>
-    <p :style="subtitleStyle">to Spandau</p>
-
     <div v-if="busLoading" :style="loadingStyle">Loading departures...</div>
 
     <div v-else-if="busError" :style="errorStyle">
@@ -17,11 +14,10 @@
       <div
         v-for="(departure, index) in busDepartures"
         :key="index"
-        :style="departureRowStyle"
+        :style="departureRowStyle(index)"
       >
         <div class="departure-line">
           <span :style="lineNumberStyle">{{ departure.line }}</span>
-          <span :style="directionStyle">{{ departure.direction }}</span>
         </div>
         <div class="departure-time">
           <span :style="timeStyle">{{ departure.time }}</span>
@@ -61,20 +57,8 @@ const transitCardStyle = computed(() => ({
   background: tokens.value.colors.bgSecondary,
   padding: tokens.value.spacing.xl,
   borderRadius: tokens.value.radius.xl,
-  boxShadow: tokens.value.colors.shadow
-}))
-
-const titleStyle = computed(() => ({
-  fontSize: tokens.value.typography.sizes.xl,
-  fontWeight: tokens.value.typography.weights.bold,
-  color: tokens.value.colors.text,
-  margin: '0 0 4px 0'
-}))
-
-const subtitleStyle = computed(() => ({
-  fontSize: tokens.value.typography.sizes.sm,
-  color: tokens.value.colors.textSecondary,
-  margin: `0 0 ${tokens.value.spacing.lg} 0`
+  boxShadow: tokens.value.colors.shadow,
+  width: 'fit-content'
 }))
 
 const loadingStyle = computed(() => ({
@@ -98,13 +82,13 @@ const emptyStyle = computed(() => ({
   padding: tokens.value.spacing.lg
 }))
 
-const departureRowStyle = computed(() => ({
+const departureRowStyle = (index) => ({
   display: 'flex',
-  justifyContent: 'space-between',
   alignItems: 'center',
+  gap: tokens.value.spacing.md,
   padding: `${tokens.value.spacing.md} 0`,
-  borderBottom: `1px solid ${tokens.value.colors.border}`
-}))
+  borderBottom: index < busDepartures.value.length - 1 ? `1px solid ${tokens.value.colors.border}` : 'none'
+})
 
 const lineNumberStyle = computed(() => ({
   display: 'inline-block',
@@ -114,12 +98,8 @@ const lineNumberStyle = computed(() => ({
   borderRadius: tokens.value.radius.sm,
   fontSize: tokens.value.typography.sizes.sm,
   fontWeight: tokens.value.typography.weights.bold,
-  marginRight: tokens.value.spacing.sm
-}))
-
-const directionStyle = computed(() => ({
-  fontSize: tokens.value.typography.sizes.base,
-  color: tokens.value.colors.text
+  minWidth: '40px',
+  textAlign: 'center'
 }))
 
 const timeStyle = computed(() => ({
@@ -150,14 +130,11 @@ const timestampStyle = computed(() => ({
 
 <style scoped>
 .departures-list {
-  margin-top: 16px;
 }
 
 .departure-line {
   display: flex;
   align-items: center;
-  flex: 1;
-  margin-right: 16px;
 }
 
 .departure-time {

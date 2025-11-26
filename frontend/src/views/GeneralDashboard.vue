@@ -1,20 +1,11 @@
 <template>
   <div class="general-dashboard" :style="dashboardStyle">
-    <!-- Weather Section -->
-    <section :style="sectionStyle">
-      <div class="weather-widgets">
-        <WeatherCurrent />
-        <WeatherForecast />
-      </div>
-    </section>
-
-    <!-- Transit Section -->
-    <section :style="sectionStyle">
-      <div class="transit-grid">
-        <BusDepartures />
-        <TrainDepartures />
-      </div>
-    </section>
+    <div class="widgets">
+      <WeatherCurrent />
+      <WeatherForecast />
+      <BusDepartures />
+      <TrainDepartures />
+    </div>
   </div>
 </template>
 
@@ -50,29 +41,13 @@ onUnmounted(() => {
 const dashboardStyle = computed(() => ({
   background: tokens.value.colors.bg
 }))
-
-const sectionStyle = computed(() => ({
-  marginBottom: tokens.value.spacing.xl
-}))
 </script>
 
 <style scoped>
-.weather-widgets {
+.widgets {
   display: flex;
-  gap: 24px;
-  align-items: flex-start;
-  flex-wrap: wrap;
-}
-
-.transit-grid {
-  display: grid;
   gap: 20px;
-  grid-template-columns: 1fr;
-}
-
-@media (min-width: 1024px) {
-  .transit-grid {
-    grid-template-columns: 1fr 1fr;
-  }
+  flex-wrap: wrap;
+  align-items: flex-start;
 }
 </style>
