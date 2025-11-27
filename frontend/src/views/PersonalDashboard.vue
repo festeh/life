@@ -28,7 +28,7 @@
       </section>
 
       <!-- Quick Stats -->
-      <section>
+      <section :style="sectionStyle">
         <h2 :style="{ ...subHeadingStyle, marginBottom: tokens.spacing.lg }">Quick Stats</h2>
         <div class="grid">
           <div :style="cardStyle">
@@ -41,6 +41,24 @@
           </div>
         </div>
       </section>
+
+      <!-- Focus Stats -->
+      <section>
+        <h2 :style="{ ...subHeadingStyle, marginBottom: tokens.spacing.lg }">Focus</h2>
+        <div class="focus-section">
+          <div class="focus-stats">
+            <div :style="cardStyle">
+              <h3 :style="statLabelStyle">Today</h3>
+              <p :style="statNumberStyle">{{ focusStore.todayFocuses }}</p>
+            </div>
+            <div :style="cardStyle">
+              <h3 :style="statLabelStyle">This Week</h3>
+              <p :style="statNumberStyle">{{ focusStore.weekFocuses }}</p>
+            </div>
+          </div>
+          <FocusHeatmap />
+        </div>
+      </section>
     </div>
   </div>
 </template>
@@ -50,11 +68,14 @@ import { ref, computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useHabitsStore } from '@/stores/habits'
 import { useCheckInsStore } from '@/stores/checkins'
+import { useFocusStore } from '@/stores/focus'
 import { useTheme } from '@/composables/useTheme'
 import HabitCard from '@/components/habits/HabitCard.vue'
+import FocusHeatmap from '@/components/focus/FocusHeatmap.vue'
 
 const habitsStore = useHabitsStore()
 const checkInsStore = useCheckInsStore()
+const focusStore = useFocusStore()
 const { tokens } = useTheme()
 
 const loading = ref(true)
@@ -72,7 +93,8 @@ onMounted(async () => {
   try {
     await Promise.all([
       habitsStore.fetchHabits(),
-      checkInsStore.fetchTodayCheckIns()
+      checkInsStore.fetchTodayCheckIns(),
+      focusStore.fetchHistory(7)
     ])
   } finally {
     loading.value = false
@@ -189,5 +211,33 @@ const statNumberStyle = computed(() => ({
 
 a:hover {
   opacity: 0.9;
+}
+
+.focus-section {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.focus-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .focus-section {
+    flex-direction: column;
+  }
+
+  .focus-stats {
+    flex-direction: row;
+    width: 100%;
+  }
+
+  .focus-stats > div {
+    flex: 1;
+  }
 }
 </style>

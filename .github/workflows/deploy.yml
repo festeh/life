@@ -31,6 +31,8 @@ jobs:
           CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o life-server cmd/server/main.go
 
       - name: Build Frontend
+        env:
+          VITE_COACH_API_URL: ${{ secrets.VITE_COACH_API_URL }}
         run: |
           cd frontend
           npm ci
