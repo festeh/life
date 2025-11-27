@@ -1,9 +1,9 @@
 <template>
   <div class="login-page">
     <div class="login-card" :style="cardStyle">
-      <h1 :style="headingStyle">Life - Habit Tracker</h1>
+      <h1 :style="headingStyle">Life</h1>
       <p :style="descriptionStyle">
-        Track your habits, build streaks, and visualize your progress
+        Track your focus and visualize your progress
       </p>
       <button @click="handleLogin" :style="buttonStyle">
         {{ isDevMode ? 'Dev Login' : 'Login with Google' }}
