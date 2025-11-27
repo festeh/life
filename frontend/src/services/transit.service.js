@@ -11,6 +11,19 @@ export const STOPS = {
   SPANDAU_BHF_DB: '8010404'         // Berlin-Spandau for DB API
 }
 
+// Regional train routes from Spandau (simplified stop names)
+// Source: VBB, DB Regio Berlin-Brandenburg
+const REGIONAL_ROUTES = {
+  // Stadtbahn route (via Zoo, Charlottenburg)
+  'RE2': ['Charlottenburg', 'Zoo', 'Hbf', 'Friedrichstr.', 'Alexanderplatz', 'Ostbahnhof', 'Ostkreuz'],
+  'RE8': ['Charlottenburg', 'Zoo', 'Hbf', 'Friedrichstr.', 'Alexanderplatz', 'Ostkreuz', 'Flughafen BER'],
+  // Northern route (via Jungfernheide)
+  'RE4': ['Jungfernheide', 'Hbf', 'Südkreuz', 'Ludwigsfelde', 'Jüterbog'],
+  'RB10': ['Jungfernheide', 'Hbf', 'Südkreuz', 'Rangsdorf'],
+  'RB14': ['Jungfernheide', 'Hbf', 'Potsdamer Platz', 'Südkreuz'],
+  'RB21': ['Jungfernheide', 'Hbf', 'Friedrichstr.', 'Gesundbrunnen', 'Karow']
+}
+
 /**
  * Format delay in minutes
  */
@@ -90,7 +103,7 @@ export const transitService = {
     try {
       // Fetch more results than needed since we'll filter out buses
       const params = new URLSearchParams({
-        results: '30', // Fetch more to account for filtering
+        results: '60', // Fetch more to account for filtering
         duration: '120' // Look ahead 2 hours to ensure we get enough trains
       })
 
@@ -129,7 +142,9 @@ export const transitService = {
         minutesUntil: getMinutesUntil(dep.when),
         platform: dep.platform,
         plannedPlatform: dep.plannedPlatform,
-        remarks: dep.remarks || []
+        remarks: dep.remarks || [],
+        // Get route stops for regional trains from hardcoded data
+        routeStops: REGIONAL_ROUTES[dep.line.name] || []
       }))
     } catch (error) {
       console.error('Error fetching train departures:', error)

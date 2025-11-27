@@ -22,7 +22,7 @@
           </div>
           <div class="weather-details">
             <div v-if="current.feelsLike !== null">
-              <div :style="detailLabelStyle">Feels like</div>
+              <div :style="detailLabelStyle">Feels</div>
               <div :style="detailValueStyle">{{ current.feelsLike }}°C</div>
             </div>
             <div>

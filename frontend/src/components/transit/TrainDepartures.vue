@@ -10,24 +10,26 @@
       No departures found
     </div>
 
-    <div v-else class="departures-list">
-      <div
-        v-for="(departure, index) in trainDepartures"
-        :key="index"
-        :style="departureRowStyle(index)"
-      >
-        <div class="departure-line">
-          <span :style="lineNumberStyle(departure.lineType)">{{ departure.line }}</span>
-        </div>
-        <div class="departure-info">
-          <div class="departure-time">
-            <span :style="timeStyle">{{ departure.time }}</span>
-            <span :style="minutesStyle">{{ formatMinutes(departure.minutesUntil) }}</span>
-            <span v-if="departure.delay" :style="delayStyle">{{ departure.delay }}m</span>
-          </div>
-        </div>
-      </div>
-    </div>
+    <table v-else class="departures-table">
+      <template v-for="(departure, index) in trainDepartures" :key="index">
+        <tr
+          :class="{ clickable: departure.lineType === 'regional' }"
+          @click="departure.lineType === 'regional' && toggleRow(index)"
+        >
+          <td><span :style="lineNumberStyle(departure.lineType, departure.line)">{{ departure.line }}</span></td>
+          <td :style="timeStyle">{{ departure.time }}</td>
+          <td :style="minutesStyle">{{ formatMinutes(departure.minutesUntil) }}</td>
+          <td v-if="hasDelays" :style="delayStyle">{{ departure.delay ? `${departure.delay}m` : '' }}</td>
+          <td v-if="hasRegionalTrains" :style="chevronCellStyle">
+            <span v-if="departure.lineType === 'regional'" :style="chevronStyle(index)">›</span>
+          </td>
+        </tr>
+        <tr v-if="expandedRows.has(index) && departure.routeStops?.length" class="stopover-row">
+          <td></td>
+          <td :style="routeStyle" colspan="4">{{ departure.routeStops.join(' → ') }}</td>
+        </tr>
+      </template>
+    </table>
 
     <div v-if="lastUpdatedText && trainDepartures.length > 0" :style="timestampStyle">
       Updated: {{ lastUpdatedText }}
@@ -36,7 +38,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useTransitStore } from '@/stores/transit'
 import { useTheme } from '@/composables/useTheme'
 
@@ -47,6 +49,21 @@ const trainDepartures = computed(() => transitStore.trainDepartures)
 const trainLoading = computed(() => transitStore.trainLoading)
 const trainError = computed(() => transitStore.trainError)
 const lastUpdatedText = computed(() => transitStore.lastUpdatedText)
+const hasDelays = computed(() => trainDepartures.value.some(d => d.delay))
+const hasRegionalTrains = computed(() => trainDepartures.value.some(d => d.lineType === 'regional'))
+
+// Track expanded rows
+const expandedRows = ref(new Set())
+
+function toggleRow(index) {
+  if (expandedRows.value.has(index)) {
+    expandedRows.value.delete(index)
+  } else {
+    expandedRows.value.add(index)
+  }
+  // Trigger reactivity
+  expandedRows.value = new Set(expandedRows.value)
+}
 
 function formatMinutes(minutes) {
   if (minutes <= 0) return 'now'
@@ -94,43 +111,35 @@ const emptyStyle = computed(() => ({
   padding: tokens.value.spacing.lg
 }))
 
-const departureRowStyle = (index) => ({
-  display: 'flex',
-  alignItems: 'center',
-  gap: tokens.value.spacing.md,
-  padding: `${tokens.value.spacing.md} 0`,
-  borderBottom: index < trainDepartures.value.length - 1 ? `1px solid ${tokens.value.colors.border}` : 'none'
-})
+const lineNumberStyle = (lineType, lineName) => {
+  const baseSize = parseInt(tokens.value.typography.sizes.sm)
+  // Scale down font for longer line names
+  const fontSize = lineName.length > 3 ? `${baseSize * 0.8}px` : tokens.value.typography.sizes.sm
 
-const lineNumberStyle = (lineType) => ({
-  display: 'inline-block',
-  background: getLineColor(lineType),
-  color: 'white',
-  padding: `${tokens.value.spacing.xs} ${tokens.value.spacing.sm}`,
-  borderRadius: tokens.value.radius.sm,
-  fontSize: tokens.value.typography.sizes.sm,
-  fontWeight: tokens.value.typography.weights.bold,
-  width: '48px',
-  textAlign: 'center',
-  boxSizing: 'border-box'
-})
+  return {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: getLineColor(lineType),
+    color: 'white',
+    padding: `${tokens.value.spacing.xs} ${tokens.value.spacing.sm}`,
+    borderRadius: tokens.value.radius.sm,
+    fontSize,
+    fontWeight: tokens.value.typography.weights.bold,
+    width: '48px',
+    boxSizing: 'border-box'
+  }
+}
 
 const timeStyle = computed(() => ({
   fontSize: tokens.value.typography.sizes.lg,
   fontWeight: tokens.value.typography.weights.semibold,
-  color: tokens.value.colors.text,
-  marginRight: tokens.value.spacing.xs
+  color: tokens.value.colors.text
 }))
 
 const delayStyle = computed(() => ({
   fontSize: tokens.value.typography.sizes.sm,
   color: tokens.value.colors.danger
-}))
-
-const platformStyle = computed(() => ({
-  fontSize: tokens.value.typography.sizes.xs,
-  color: tokens.value.colors.textSecondary,
-  marginRight: tokens.value.spacing.xs
 }))
 
 const minutesStyle = computed(() => ({
@@ -144,26 +153,65 @@ const timestampStyle = computed(() => ({
   marginTop: tokens.value.spacing.md,
   textAlign: 'center'
 }))
+
+const chevronCellStyle = computed(() => ({
+  width: '20px',
+  textAlign: 'center'
+}))
+
+const chevronStyle = (index) => ({
+  display: 'inline-block',
+  fontSize: tokens.value.typography.sizes.lg,
+  color: tokens.value.colors.textSecondary,
+  transition: 'transform 0.2s ease',
+  transform: expandedRows.value.has(index) ? 'rotate(90deg)' : 'rotate(0deg)'
+})
+
+const routeStyle = computed(() => ({
+  fontSize: tokens.value.typography.sizes.xs,
+  color: tokens.value.colors.textSecondary,
+  paddingTop: '0',
+  maxWidth: '180px',
+  lineHeight: '1.5',
+  wordWrap: 'break-word',
+  whiteSpace: 'normal'
+}))
 </script>
 
 <style scoped>
-.departures-list {
+.departures-table {
+  border-collapse: collapse;
+  border: none;
 }
 
-.departure-line {
-  display: flex;
-  align-items: center;
+.departures-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid v-bind('tokens.colors.border');
+  vertical-align: middle;
 }
 
-.departure-info {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
+.departures-table tr:last-child td {
+  border-bottom: none;
 }
 
-.departure-time {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.departures-table td:first-child {
+  padding-left: 0;
+}
+
+.departures-table td:last-child {
+  padding-right: 0;
+}
+
+.departures-table tr.clickable {
+  cursor: pointer;
+}
+
+.departures-table tr.clickable:hover {
+  background: v-bind('tokens.colors.bg');
+}
+
+.stopover-row td {
+  padding: 2px 8px 10px 8px;
+  border-bottom: 1px solid v-bind('tokens.colors.border');
 }
 </style>

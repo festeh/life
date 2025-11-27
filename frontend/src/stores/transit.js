@@ -62,7 +62,7 @@ export const useTransitStore = defineStore('transit', {
       this.trainError = null
 
       try {
-        const departures = await transitService.getTrainDepartures(STOPS.SPANDAU_BHF, 5)
+        const departures = await transitService.getTrainDepartures(STOPS.SPANDAU_BHF, 30)
         this.trainDepartures = departures
         this.lastUpdated = new Date()
         console.log('Train departures updated:', departures.length, 'departures')
