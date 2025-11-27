@@ -1,154 +1,413 @@
 <template>
-  <div :style="containerStyle">
-    <div v-if="loading" :style="loadingStyle">Loading focus data...</div>
+  <div class="focus-heatmap">
+    <div v-if="loading" class="loading">Loading focus data...</div>
 
-    <div v-else-if="error" :style="errorStyle">
-      Failed to load focus data
-    </div>
+    <div v-else-if="error" class="error">Failed to load focus data</div>
 
-    <div v-else class="heatmap">
-      <!-- Hour labels (X-axis) -->
-      <div class="hour-labels">
-        <div class="day-label-spacer"></div>
-        <div
-          v-for="hour in displayHours"
-          :key="hour"
-          :style="hourLabelStyle"
-        >
-          {{ hour }}
+    <div v-else>
+      <!-- Period labels -->
+      <div class="period-row">
+        <div class="day-spacer"></div>
+        <div class="period-label" v-for="period in periods" :key="period.name">
+          {{ period.name }}
         </div>
       </div>
 
-      <!-- Grid rows (days) -->
+      <!-- Hour labels -->
+      <div class="hour-row">
+        <div class="day-spacer"></div>
+        <div class="hours-container">
+          <div
+            v-for="hour in hours"
+            :key="hour"
+            class="hour-label"
+            :class="{ 'hour-visible': hour % 3 === 0 }"
+          >
+            {{ hour % 3 === 0 ? formatHour(hour) : '' }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Grid rows -->
       <div
-        v-for="day in days"
+        v-for="(day, dayIndex) in days"
         :key="day.date"
         class="heatmap-row"
       >
-        <div :style="dayLabelStyle">{{ day.label }}</div>
-        <div
-          v-for="hour in 24"
-          :key="hour - 1"
-          :style="cellStyle(day.date, hour - 1)"
-          :title="`${day.label} ${hour - 1}:00 - ${getCount(day.date, hour - 1)} focuses`"
-        ></div>
+        <div class="day-label">
+          <span class="day-name">{{ day.label }}</span>
+          <span class="day-date">{{ day.dayNum }}</span>
+        </div>
+        <div class="cells-container">
+          <div
+            v-for="(hour, hourIndex) in hours"
+            :key="hour"
+            class="cell"
+            :class="getCellClass(day.date, hour)"
+            :style="{ animationDelay: `${dayIndex * 30 + hourIndex * 10}ms` }"
+            @mouseenter="showTooltip($event, day, hour)"
+            @mouseleave="hideTooltip"
+          ></div>
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div class="legend">
+        <span class="legend-label">Less</span>
+        <div class="legend-scale">
+          <div class="legend-cell level-0"></div>
+          <div class="legend-cell level-1"></div>
+          <div class="legend-cell level-2"></div>
+          <div class="legend-cell level-3"></div>
+          <div class="legend-cell level-4"></div>
+        </div>
+        <span class="legend-label">More</span>
+      </div>
+
+      <!-- Tooltip -->
+      <div
+        v-if="tooltip.visible"
+        class="tooltip"
+        :style="{ left: tooltip.x + 'px', top: tooltip.y + 'px' }"
+      >
+        <div class="tooltip-day">{{ tooltip.day }}</div>
+        <div class="tooltip-time">{{ tooltip.time }}</div>
+        <div class="tooltip-count">
+          <span class="count-number">{{ tooltip.count }}</span>
+          <span class="count-label">{{ tooltip.count === 1 ? 'focus' : 'focuses' }}</span>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, computed, reactive } from 'vue'
 import { useFocusStore } from '@/stores/focus'
-import { useTheme } from '@/composables/useTheme'
 
 const focusStore = useFocusStore()
-const { tokens } = useTheme()
 
 const loading = computed(() => focusStore.loading)
 const error = computed(() => focusStore.error)
 const historyByDayAndHour = computed(() => focusStore.historyByDayAndHour)
 
-// Generate last 7 days
+const periods = [
+  { name: 'Morning', hours: [6, 11] },
+  { name: 'Afternoon', hours: [12, 17] },
+  { name: 'Evening', hours: [18, 23] }
+]
+
+const hours = Array.from({ length: 18 }, (_, i) => i + 6) // 6-23
+
 const days = computed(() => {
   const result = []
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
-  for (let i = 6; i >= 0; i--) {
+  for (let i = 0; i <= 6; i++) {
     const date = new Date()
     date.setDate(date.getDate() - i)
     const dateKey = date.toISOString().split('T')[0]
 
     result.push({
       date: dateKey,
-      label: dayNames[date.getDay()]
+      label: dayNames[date.getDay()],
+      dayNum: date.getDate(),
+      fullDate: date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })
     })
   }
 
   return result
 })
 
-// Display hours (every 3 hours for readability)
-const displayHours = [0, 3, 6, 9, 12, 15, 18, 21]
+function formatHour(hour) {
+  return hour.toString()
+}
 
 function getCount(dateKey, hour) {
   return historyByDayAndHour.value[dateKey]?.[hour] || 0
 }
 
-function getCellColor(count) {
-  if (count === 0) return tokens.value.colors.border
-  if (count === 1) return tokens.value.colors.success + '40'
-  if (count === 2) return tokens.value.colors.success + '70'
-  if (count === 3) return tokens.value.colors.success + 'a0'
-  return tokens.value.colors.success
+function getCellClass(dateKey, hour) {
+  const count = getCount(dateKey, hour)
+  if (count === 0) return 'level-0'
+  if (count === 1) return 'level-1'
+  if (count === 2) return 'level-2'
+  if (count === 3) return 'level-3'
+  return 'level-4'
 }
 
-// Styles
-const containerStyle = computed(() => ({
-  background: tokens.value.colors.bgSecondary,
-  padding: tokens.value.spacing.lg,
-  borderRadius: tokens.value.radius.xl,
-  boxShadow: tokens.value.colors.shadow
-}))
-
-const loadingStyle = computed(() => ({
-  textAlign: 'center',
-  color: tokens.value.colors.textSecondary,
-  fontSize: tokens.value.typography.sizes.sm,
-  padding: tokens.value.spacing.lg
-}))
-
-const errorStyle = computed(() => ({
-  color: tokens.value.colors.danger,
-  fontSize: tokens.value.typography.sizes.sm,
-  textAlign: 'center',
-  padding: tokens.value.spacing.lg
-}))
-
-const hourLabelStyle = computed(() => ({
-  fontSize: tokens.value.typography.sizes.xs,
-  color: tokens.value.colors.textSecondary,
-  width: '24px',
-  textAlign: 'center'
-}))
-
-const dayLabelStyle = computed(() => ({
-  fontSize: tokens.value.typography.sizes.xs,
-  color: tokens.value.colors.textSecondary,
-  width: '32px',
-  textAlign: 'right',
-  paddingRight: '8px'
-}))
-
-const cellStyle = (dateKey, hour) => ({
-  width: '10px',
-  height: '10px',
-  borderRadius: '2px',
-  background: getCellColor(getCount(dateKey, hour))
+// Tooltip state
+const tooltip = reactive({
+  visible: false,
+  x: 0,
+  y: 0,
+  day: '',
+  time: '',
+  count: 0
 })
+
+function showTooltip(event, day, hour) {
+  const rect = event.target.getBoundingClientRect()
+  const container = event.target.closest('.focus-heatmap').getBoundingClientRect()
+
+  tooltip.x = rect.left - container.left + rect.width / 2
+  tooltip.y = rect.top - container.top - 8
+  tooltip.day = day.fullDate
+  tooltip.time = `${hour}:00 - ${hour + 1}:00`
+  tooltip.count = getCount(day.date, hour)
+  tooltip.visible = true
+}
+
+function hideTooltip() {
+  tooltip.visible = false
+}
 </script>
 
 <style scoped>
-.heatmap {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+.focus-heatmap {
+  position: relative;
+  padding: 20px;
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.9));
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(10px);
 }
 
-.hour-labels {
+.loading, .error {
+  text-align: center;
+  padding: 24px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.error {
+  color: #f87171;
+}
+
+/* Period labels */
+.period-row {
   display: flex;
-  gap: 2px;
   margin-bottom: 4px;
 }
 
-.day-label-spacer {
-  width: 32px;
+.day-spacer {
+  width: 52px;
   flex-shrink: 0;
 }
 
+.period-label {
+  flex: 1;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+/* Hour labels */
+.hour-row {
+  display: flex;
+  margin-bottom: 6px;
+}
+
+.hours-container {
+  display: flex;
+  flex: 1;
+  gap: 3px;
+}
+
+.hour-label {
+  width: 12px;
+  font-size: 9px;
+  font-family: 'SF Mono', 'Menlo', 'Monaco', monospace;
+  color: rgba(255, 255, 255, 0.4);
+  text-align: center;
+}
+
+/* Day rows */
 .heatmap-row {
   display: flex;
-  gap: 2px;
   align-items: center;
+  margin-bottom: 3px;
+}
+
+.day-label {
+  width: 52px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  padding-right: 8px;
+  justify-content: flex-end;
+}
+
+.day-name {
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.day-date {
+  font-size: 10px;
+  font-family: 'SF Mono', 'Menlo', 'Monaco', monospace;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.cells-container {
+  display: flex;
+  gap: 3px;
+  flex: 1;
+}
+
+/* Cells */
+.cell {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  transition: all 0.15s ease;
+  animation: cellFadeIn 0.4s ease forwards;
+  opacity: 0;
+  cursor: pointer;
+}
+
+@keyframes cellFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.cell:hover {
+  transform: scale(1.3);
+  z-index: 10;
+}
+
+.level-0 {
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.level-1 {
+  background: rgba(20, 184, 166, 0.3);
+  box-shadow: 0 0 4px rgba(20, 184, 166, 0.2);
+}
+
+.level-1:hover {
+  box-shadow: 0 0 8px rgba(20, 184, 166, 0.4);
+}
+
+.level-2 {
+  background: rgba(20, 184, 166, 0.5);
+  box-shadow: 0 0 6px rgba(20, 184, 166, 0.3);
+}
+
+.level-2:hover {
+  box-shadow: 0 0 12px rgba(20, 184, 166, 0.5);
+}
+
+.level-3 {
+  background: rgba(16, 185, 129, 0.7);
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+}
+
+.level-3:hover {
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.6);
+}
+
+.level-4 {
+  background: #10b981;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.5), 0 0 20px rgba(16, 185, 129, 0.2);
+}
+
+.level-4:hover {
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.7), 0 0 30px rgba(16, 185, 129, 0.3);
+}
+
+/* Legend */
+.legend {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.legend-label {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.legend-scale {
+  display: flex;
+  gap: 3px;
+}
+
+.legend-cell {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+/* Tooltip */
+.tooltip {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  background: rgba(0, 0, 0, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 10px 14px;
+  pointer-events: none;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+  animation: tooltipIn 0.15s ease;
+}
+
+@keyframes tooltipIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -90%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -100%);
+  }
+}
+
+.tooltip-day {
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 2px;
+}
+
+.tooltip-time {
+  font-size: 10px;
+  font-family: 'SF Mono', 'Menlo', 'Monaco', monospace;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 6px;
+}
+
+.tooltip-count {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.count-number {
+  font-size: 18px;
+  font-weight: 600;
+  color: #10b981;
+}
+
+.count-label {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.5);
 }
 </style>
