@@ -1,11 +1,9 @@
 <template>
   <div class="dashboard">
-    <div class="trackers">
-      <FocusHeatmap />
-      <PageVisitHeatmap />
-      <TodayNotes />
-    </div>
+    <PageVisitHeatmap />
+    <FocusHeatmap />
     <TaskList />
+    <TodayNotes />
   </div>
 </template>
 
@@ -28,13 +26,6 @@ onMounted(() => {
 <style scoped>
 .dashboard {
   min-height: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  align-items: flex-start;
-}
-
-.trackers {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
