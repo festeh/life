@@ -33,6 +33,7 @@ jobs:
       - name: Build Frontend
         env:
           VITE_COACH_API_URL: ${{ secrets.VITE_COACH_API_URL }}
+          VITE_DIMAIST_API_URL: ${{ secrets.VITE_DIMAIST_API_URL }}
         run: |
           cd frontend
           npm ci
