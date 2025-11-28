@@ -9,7 +9,8 @@ export const notesService = {
    * @returns {Promise<Array>} Array of notes
    */
   async getNotesByDate(date) {
-    const dateStr = date.toISOString().split('T')[0] // YYYY-MM-DD
+    // Use local date to match rumi's Dart toIso8601String() behavior
+    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     try {
       const response = await fetch(`${RUMI_API_URL}/notes/date/${dateStr}`)
 
