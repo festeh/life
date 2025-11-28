@@ -1,6 +1,6 @@
 // Focus service for coach integration
 
-const COACH_API_URL = import.meta.env.VITE_COACH_API_URL || 'https://coach.dimalip.in'
+const COACH_API_URL = import.meta.env.VITE_COACH_API_URL
 
 export const focusService = {
   /**

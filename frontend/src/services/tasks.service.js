@@ -1,4 +1,4 @@
-const DIMAIST_API_URL = import.meta.env.VITE_DIMAIST_API_URL || 'https://dimaist.dimalip.in'
+const DIMAIST_API_URL = import.meta.env.VITE_DIMAIST_API_URL
 
 export const tasksService = {
   async getTasks() {

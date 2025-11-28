@@ -3,6 +3,7 @@
     <div class="trackers">
       <FocusHeatmap />
       <PageVisitHeatmap />
+      <TodayNotes />
     </div>
     <TaskList />
   </div>
@@ -12,6 +13,7 @@
 import { onMounted } from 'vue'
 import FocusHeatmap from '@/components/focus/FocusHeatmap.vue'
 import PageVisitHeatmap from '@/components/pagevisit/PageVisitHeatmap.vue'
+import TodayNotes from '@/components/notes/TodayNotes.vue'
 import TaskList from '@/components/tasks/TaskList.vue'
 import { usePageVisitStore } from '@/stores/pagevisit'
 

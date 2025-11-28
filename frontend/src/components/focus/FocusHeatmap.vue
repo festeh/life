@@ -33,6 +33,7 @@
         v-for="(day, dayIndex) in days"
         :key="day.date"
         class="heatmap-row"
+        :class="{ 'today-row': dayIndex === 0 }"
       >
         <div class="day-label">
           <span class="day-name">{{ day.label }}</span>
@@ -49,19 +50,26 @@
             @mouseleave="hideTooltip"
           ></div>
         </div>
+        <div class="day-total">{{ getDayTotal(day.date) }}</div>
       </div>
 
       <!-- Legend -->
       <div class="legend">
-        <span class="legend-label">Less</span>
-        <div class="legend-scale">
-          <div class="legend-cell level-0"></div>
-          <div class="legend-cell level-1"></div>
-          <div class="legend-cell level-2"></div>
-          <div class="legend-cell level-3"></div>
-          <div class="legend-cell level-4"></div>
+        <div class="week-total">
+          <span class="week-total-value">{{ weekTotal }}</span>
+          <span class="week-total-label">this week</span>
         </div>
-        <span class="legend-label">More</span>
+        <div class="legend-right">
+          <span class="legend-label">Less</span>
+          <div class="legend-scale">
+            <div class="legend-cell level-0"></div>
+            <div class="legend-cell level-1"></div>
+            <div class="legend-cell level-2"></div>
+            <div class="legend-cell level-3"></div>
+            <div class="legend-cell level-4"></div>
+          </div>
+          <span class="legend-label">More</span>
+        </div>
       </div>
 
       <!-- Tooltip -->
@@ -82,14 +90,19 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive } from 'vue'
+import { ref, computed, reactive, onMounted } from 'vue'
 import { useFocusStore } from '@/stores/focus'
 
 const focusStore = useFocusStore()
 
+onMounted(() => {
+  focusStore.fetchHistory(7)
+})
+
 const loading = computed(() => focusStore.loading)
 const error = computed(() => focusStore.error)
 const historyByDayAndHour = computed(() => focusStore.historyByDayAndHour)
+const weekTotal = computed(() => focusStore.weekFocuses)
 
 const periods = [
   { name: 'Morning', hours: [6, 11] },
@@ -125,6 +138,12 @@ function formatHour(hour) {
 
 function getCount(dateKey, hour) {
   return historyByDayAndHour.value[dateKey]?.[hour] || 0
+}
+
+function getDayTotal(dateKey) {
+  const dayData = historyByDayAndHour.value[dateKey]
+  if (!dayData) return 0
+  return Object.values(dayData).reduce((sum, count) => sum + count, 0)
 }
 
 function getCellClass(dateKey, hour) {
@@ -171,6 +190,7 @@ function hideTooltip() {
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(10px);
+  width: fit-content;
 }
 
 .loading, .error {
@@ -196,7 +216,7 @@ function hideTooltip() {
 }
 
 .period-label {
-  flex: 1;
+  width: 90px;
   text-align: center;
   font-size: 10px;
   font-weight: 500;
@@ -213,7 +233,6 @@ function hideTooltip() {
 
 .hours-container {
   display: flex;
-  flex: 1;
   gap: 3px;
 }
 
@@ -230,6 +249,11 @@ function hideTooltip() {
   display: flex;
   align-items: center;
   margin-bottom: 3px;
+}
+
+.today-row .day-total {
+  color: #10b981;
+  font-weight: 600;
 }
 
 .day-label {
@@ -257,7 +281,16 @@ function hideTooltip() {
 .cells-container {
   display: flex;
   gap: 3px;
-  flex: 1;
+}
+
+.day-total {
+  width: 28px;
+  margin-left: 12px;
+  font-size: 11px;
+  font-family: 'SF Mono', 'Menlo', 'Monaco', monospace;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: right;
 }
 
 /* Cells */
@@ -332,11 +365,36 @@ function hideTooltip() {
 .legend {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
+  justify-content: space-between;
   margin-top: 16px;
   padding-top: 12px;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.week-total {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.week-total-value {
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'SF Mono', 'Menlo', 'Monaco', monospace;
+  color: #10b981;
+}
+
+.week-total-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.legend-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .legend-label {
