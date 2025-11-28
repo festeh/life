@@ -29,15 +29,15 @@ onMounted(() => {
 .dashboard {
   min-height: 100%;
   display: flex;
+  flex-wrap: wrap;
   gap: 20px;
   align-items: flex-start;
-  justify-content: center;
-  padding: 0 20px;
 }
 
 .trackers {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: 20px;
+  align-items: flex-start;
 }
 </style>
