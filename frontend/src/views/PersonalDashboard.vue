@@ -31,6 +31,8 @@ onMounted(() => {
   display: flex;
   gap: 20px;
   align-items: flex-start;
+  justify-content: center;
+  padding: 0 20px;
 }
 
 .trackers {
