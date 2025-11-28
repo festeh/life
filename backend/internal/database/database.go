@@ -35,16 +35,26 @@ func New(dbPath string) (*DB, error) {
 }
 
 func (db *DB) RunMigrations(migrationsPath string) error {
-	// Read and execute migration file
-	migrationFile := filepath.Join(migrationsPath, "001_initial_schema.sql")
-	content, err := os.ReadFile(migrationFile)
+	// Get all migration files sorted by name
+	entries, err := os.ReadDir(migrationsPath)
 	if err != nil {
-		return fmt.Errorf("failed to read migration file: %w", err)
+		return fmt.Errorf("failed to read migrations directory: %w", err)
 	}
 
-	// Execute migration
-	if _, err := db.Exec(string(content)); err != nil {
-		return fmt.Errorf("failed to execute migration: %w", err)
+	for _, entry := range entries {
+		if entry.IsDir() || filepath.Ext(entry.Name()) != ".sql" {
+			continue
+		}
+
+		migrationFile := filepath.Join(migrationsPath, entry.Name())
+		content, err := os.ReadFile(migrationFile)
+		if err != nil {
+			return fmt.Errorf("failed to read migration file %s: %w", entry.Name(), err)
+		}
+
+		if _, err := db.Exec(string(content)); err != nil {
+			return fmt.Errorf("failed to execute migration %s: %w", entry.Name(), err)
+		}
 	}
 
 	return nil

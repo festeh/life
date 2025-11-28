@@ -39,12 +39,14 @@ func main() {
 	habitService := services.NewHabitService(db.DB)
 	checkInService := services.NewCheckInService(db.DB)
 	statsService := services.NewStatsService(db.DB, habitService)
+	pageVisitService := services.NewPageVisitService(db.DB)
 
 	// Initialize handlers
 	authHandler := handlers.NewAuthHandler(userService, cfg)
 	habitHandler := handlers.NewHabitHandler(habitService)
 	checkInHandler := handlers.NewCheckInHandler(checkInService)
 	statsHandler := handlers.NewStatsHandler(statsService)
+	pageVisitHandler := handlers.NewPageVisitHandler(pageVisitService)
 
 	// Set up Gin router
 	if cfg.Server.Environment == "production" {
@@ -105,6 +107,15 @@ func main() {
 			stats.GET("", statsHandler.GetOverallStats)
 			stats.GET("/habits/:id", statsHandler.GetHabitStats)
 			stats.GET("/calendar", statsHandler.GetCalendarData)
+		}
+
+		// Page visit routes
+		pageVisits := protected.Group("/page-visits")
+		{
+			pageVisits.POST("", pageVisitHandler.RecordVisit)
+			pageVisits.GET("/history", pageVisitHandler.GetHistory)
+			pageVisits.GET("/today", pageVisitHandler.GetTodayStatus)
+			pageVisits.GET("/streak", pageVisitHandler.GetStreak)
 		}
 	}
 

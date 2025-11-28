@@ -99,3 +99,31 @@ type CalendarDay struct {
 	Count int    `json:"count"`
 	Level int    `json:"level"` // 0-4
 }
+
+// Page visit models
+type PageVisit struct {
+	ID        string    `json:"id"`
+	UserID    string    `json:"user_id"`
+	Page      string    `json:"page"`
+	Period    string    `json:"period"` // morning, afternoon, evening
+	Date      string    `json:"date"`   // YYYY-MM-DD
+	VisitedAt time.Time `json:"visited_at"`
+}
+
+type PageVisitStats struct {
+	Date      string `json:"date"`
+	Morning   bool   `json:"morning"`
+	Afternoon bool   `json:"afternoon"`
+	Evening   bool   `json:"evening"`
+	Complete  bool   `json:"complete"`
+}
+
+type PageVisitRequest struct {
+	Page string `json:"page" binding:"required"`
+}
+
+type PageVisitResponse struct {
+	Period    string `json:"period"`
+	Recorded  bool   `json:"recorded"`
+	Message   string `json:"message,omitempty"`
+}
