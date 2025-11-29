@@ -5,10 +5,7 @@
         <span class="title-icon">📝</span>
         <span class="title-text">Today's Notes</span>
       </div>
-      <div class="count" v-if="!loading">
-        <span class="count-value">{{ notesCount }}</span>
-        <span class="count-label">{{ notesCount === 1 ? 'note' : 'notes' }}</span>
-      </div>
+      <span class="count-badge" v-if="!loading">{{ notesCount }} {{ notesCount === 1 ? 'note' : 'notes' }}</span>
     </div>
 
     <div v-if="loading" class="loading">
@@ -108,26 +105,17 @@ function formatTime(dateStr) {
 .title-text {
   font-size: 14px;
   font-weight: 600;
-  color: #a78bfa;
+  color: #818cf8;
   letter-spacing: 0.5px;
 }
 
-.count {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-}
-
-.count-value {
-  font-size: 16px;
-  font-weight: 700;
-  color: #a78bfa;
-  font-variant-numeric: tabular-nums;
-}
-
-.count-label {
+.count-badge {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.4);
+  font-family: 'SF Mono', 'Menlo', 'Monaco', monospace;
+  color: #818cf8;
+  background: rgba(129, 140, 248, 0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
 }
 
 /* Loading state */
@@ -141,7 +129,7 @@ function formatTime(dateStr) {
 .loading-dot {
   width: 8px;
   height: 8px;
-  background: #a78bfa;
+  background: #818cf8;
   border-radius: 50%;
   animation: bounce 1.4s ease-in-out infinite both;
 }
@@ -207,7 +195,7 @@ function formatTime(dateStr) {
   padding: 12px 14px;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 10px;
-  border-left: 3px solid rgba(167, 139, 250, 0.4);
+  border-left: 3px solid rgba(129, 140, 248, 0.4);
   animation: slideIn 0.3s ease forwards;
   opacity: 0;
   transition: all 0.2s ease;
@@ -215,7 +203,7 @@ function formatTime(dateStr) {
 
 .note-card:hover {
   background: rgba(255, 255, 255, 0.05);
-  border-left-color: #a78bfa;
+  border-left-color: #818cf8;
 }
 
 @keyframes slideIn {
