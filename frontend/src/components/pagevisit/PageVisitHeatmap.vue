@@ -226,7 +226,16 @@ function hideTooltip() {
   border: 1px solid rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(10px);
   font-family: 'DM Sans', -apple-system, sans-serif;
-  width: fit-content;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: auto;
+}
+
+@media (min-width: 768px) {
+  .ritual-tracker {
+    width: fit-content;
+  }
 }
 
 .loading, .error {

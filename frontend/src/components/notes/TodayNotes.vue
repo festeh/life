@@ -79,8 +79,17 @@ function formatTime(dateStr) {
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(10px);
+  width: 100%;
   min-width: 280px;
-  max-width: 400px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+  .today-notes {
+    width: auto;
+    max-width: 400px;
+  }
 }
 
 .header {

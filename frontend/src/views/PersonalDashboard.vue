@@ -27,8 +27,18 @@ onMounted(() => {
 .dashboard {
   min-height: 100%;
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 20px;
-  align-items: flex-start;
+  align-items: center;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+@media (min-width: 768px) {
+  .dashboard {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
 }
 </style>
