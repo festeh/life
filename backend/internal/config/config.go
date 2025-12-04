@@ -56,7 +56,7 @@ func Load() (*Config, error) {
 		},
 		JWT: JWTConfig{
 			Secret:     os.Getenv("JWT_SECRET"),
-			Expiration: 24 * time.Hour,
+			Expiration: 90 * 24 * time.Hour,
 		},
 	}
 
