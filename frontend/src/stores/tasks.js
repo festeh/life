@@ -17,14 +17,29 @@ export const useTasksStore = defineStore('tasks', {
       const today = new Date()
       const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
 
+      const getTaskDate = (task) => {
+        return task.due_datetime || task.due_date
+      }
+
+      const getTaskDateStr = (task) => {
+        const date = getTaskDate(task)
+        if (!date) return null
+        return date.split('T')[0]
+      }
+
       return state.tasks
         .filter(task => {
           if (task.completed_at) return false
-          if (!task.due_date) return false
-          const taskDateStr = task.due_date.split('T')[0]
-          return taskDateStr === todayStr
+          const taskDateStr = getTaskDateStr(task)
+          if (!taskDateStr) return false
+          // Include today and overdue (before today)
+          return taskDateStr <= todayStr
         })
-        .sort((a, b) => new Date(a.due_date) - new Date(b.due_date))
+        .map(task => {
+          const taskDateStr = getTaskDateStr(task)
+          return { ...task, isOverdue: taskDateStr < todayStr }
+        })
+        .sort((a, b) => new Date(getTaskDate(a)) - new Date(getTaskDate(b)))
     },
 
     upcomingTasks: (state) => {
@@ -34,14 +49,24 @@ export const useTasksStore = defineStore('tasks', {
       weekLater.setDate(weekLater.getDate() + 7)
       const weekLaterStr = `${weekLater.getFullYear()}-${String(weekLater.getMonth() + 1).padStart(2, '0')}-${String(weekLater.getDate()).padStart(2, '0')}`
 
+      const getTaskDate = (task) => {
+        return task.due_datetime || task.due_date
+      }
+
+      const getTaskDateStr = (task) => {
+        const date = getTaskDate(task)
+        if (!date) return null
+        return date.split('T')[0]
+      }
+
       return state.tasks
         .filter(task => {
           if (task.completed_at) return false
-          if (!task.due_date) return false
-          const taskDateStr = task.due_date.split('T')[0]
+          const taskDateStr = getTaskDateStr(task)
+          if (!taskDateStr) return false
           return taskDateStr > todayStr && taskDateStr <= weekLaterStr
         })
-        .sort((a, b) => new Date(a.due_date) - new Date(b.due_date))
+        .sort((a, b) => new Date(getTaskDate(a)) - new Date(getTaskDate(b)))
     }
   },
 

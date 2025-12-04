@@ -17,13 +17,17 @@
             v-for="(task, index) in todayTasks"
             :key="task.id"
             class="task"
+            :class="{ 'task--overdue': task.isOverdue }"
             :style="{ animationDelay: `${index * 50}ms` }"
           >
             <div class="task-checkbox"></div>
             <div class="task-content">
               <div class="task-description">{{ task.description }}</div>
-              <div v-if="task.due_date" class="task-time">
-                {{ formatTime(task.due_date) }}
+              <div v-if="getTaskTime(task)" class="task-time">
+                {{ getTaskTime(task) }}
+              </div>
+              <div v-if="task.isOverdue" class="task-overdue-date">
+                {{ formatOverdueDate(task) }}
               </div>
             </div>
           </div>
@@ -48,9 +52,9 @@
             <div class="task-content">
               <div class="task-description">{{ task.description }}</div>
               <div class="task-date">
-                {{ formatDate(task.due_date) }}
-                <span class="task-time-inline">
-                  {{ formatTime(task.due_date) }}
+                {{ formatDate(getTaskDueDate(task)) }}
+                <span v-if="getTaskTime(task)" class="task-time-inline">
+                  {{ getTaskTime(task) }}
                 </span>
               </div>
             </div>
@@ -76,6 +80,10 @@ const error = computed(() => tasksStore.error)
 const todayTasks = computed(() => tasksStore.todayTasks)
 const upcomingTasks = computed(() => tasksStore.upcomingTasks)
 
+function getTaskDueDate(task) {
+  return task.due_datetime || task.due_date
+}
+
 function formatTime(dueDate) {
   if (!dueDate) return ''
   try {
@@ -86,6 +94,24 @@ function formatTime(dueDate) {
     // Skip placeholder times like 00:00 or 23:59
     if ((hours === 0 && minutes === 0) || (hours === 23 && minutes === 59)) return ''
     return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
+  } catch {
+    return ''
+  }
+}
+
+function getTaskTime(task) {
+  // Only show time for due_datetime, not due_date
+  if (!task.due_datetime) return ''
+  return formatTime(task.due_datetime)
+}
+
+function formatOverdueDate(task) {
+  const dueDate = getTaskDueDate(task)
+  if (!dueDate) return ''
+  try {
+    const date = new Date(dueDate)
+    if (isNaN(date.getTime())) return ''
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
   } catch {
     return ''
   }
@@ -241,5 +267,19 @@ function formatDate(dueDate) {
 .task-time-inline {
   font-family: 'SF Mono', 'Menlo', 'Monaco', monospace;
   margin-left: 6px;
+}
+
+.task--overdue {
+  border-left: 2px solid #f87171;
+}
+
+.task--overdue .task-checkbox {
+  border-color: rgba(248, 113, 113, 0.5);
+}
+
+.task-overdue-date {
+  font-size: 10px;
+  color: #f87171;
+  margin-top: 2px;
 }
 </style>
