@@ -7,6 +7,7 @@ const DB_API_BASE = 'https://v5.db.transport.rest'
 // Stop IDs
 export const STOPS = {
   KIRCHHOFSTR_BERLIN: '900028151',  // Kirchhofstr. (Berlin) bus stop
+  RATHAUS_SPANDAU: '900029302',     // S+U Rathaus Spandau
   SPANDAU_BHF: '900029101',         // S Spandau Bhf (main station)
   SPANDAU_BHF_DB: '8010404'         // Berlin-Spandau for DB API
 }
@@ -57,11 +58,12 @@ export const transitService = {
    * @param {number} results - Number of departures to fetch (default: 5)
    * @returns {Promise<Array>} Array of departure data
    */
-  async getBusDepartures(stopId = STOPS.KIRCHHOFSTR_BERLIN, results = 5) {
+  async getBusDepartures(stopId = STOPS.KIRCHHOFSTR_BERLIN, results = 20) {
     try {
       const params = new URLSearchParams({
         results: results.toString(),
-        duration: '60' // Look ahead 60 minutes
+        duration: '60', // Look ahead 60 minutes
+        direction: STOPS.RATHAUS_SPANDAU // Only buses towards Spandau
       })
 
       const response = await fetch(`${BVG_API_BASE}/stops/${stopId}/departures?${params}`)
