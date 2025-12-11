@@ -22,7 +22,7 @@
           >
             <div class="task-checkbox"></div>
             <div class="task-content">
-              <div class="task-description">{{ task.description }}</div>
+              <div class="task-title">{{ task.title }}</div>
               <div v-if="getTaskTime(task)" class="task-time">
                 {{ getTaskTime(task) }}
               </div>
@@ -50,7 +50,7 @@
           >
             <div class="task-checkbox"></div>
             <div class="task-content">
-              <div class="task-description">{{ task.description }}</div>
+              <div class="task-title">{{ task.title }}</div>
               <div class="task-date">
                 {{ formatDate(getTaskDueDate(task)) }}
                 <span v-if="getTaskTime(task)" class="task-time-inline">
@@ -253,7 +253,7 @@ function formatDate(dueDate) {
   min-width: 0;
 }
 
-.task-description {
+.task-title {
   font-size: 13px;
   color: rgba(255, 255, 255, 0.85);
   line-height: 1.4;
