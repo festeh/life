@@ -17,7 +17,10 @@ export const useNotesStore = defineStore('notes', {
 
   actions: {
     async fetchTodayNotes() {
-      this.loading = true
+      // Only show loading if we don't have data yet (avoids flicker on refresh)
+      if (this.todayNotes.length === 0) {
+        this.loading = true
+      }
       this.error = null
 
       try {

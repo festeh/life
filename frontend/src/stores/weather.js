@@ -51,7 +51,10 @@ export const useWeatherStore = defineStore('weather', {
 
   actions: {
     async fetchWeather() {
-      this.loading = true
+      // Only show loading if we don't have data yet (avoids flicker on refresh)
+      if (!this.current) {
+        this.loading = true
+      }
       this.error = null
 
       try {

@@ -70,7 +70,10 @@ export const usePageVisitStore = defineStore('pagevisit', {
     },
 
     async fetchHistory(page = 'personal-dashboard', days = 7) {
-      this.loading = true
+      // Only show loading if we don't have data yet (avoids flicker on refresh)
+      if (this.history.length === 0) {
+        this.loading = true
+      }
       this.error = null
 
       try {
@@ -106,7 +109,10 @@ export const usePageVisitStore = defineStore('pagevisit', {
 
     // Initialize - fetch all data
     async initialize(page = 'personal-dashboard') {
-      this.loading = true
+      // Only show loading if we don't have data yet (avoids flicker on refresh)
+      if (this.history.length === 0) {
+        this.loading = true
+      }
       try {
         await Promise.all([
           this.fetchHistory(page),

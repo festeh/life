@@ -56,7 +56,10 @@ export const useFocusStore = defineStore('focus', {
 
   actions: {
     async fetchHistory(days = 7) {
-      this.loading = true
+      // Only show loading if we don't have data yet (avoids flicker on refresh)
+      if (this.history.length === 0) {
+        this.loading = true
+      }
       this.error = null
 
       try {

@@ -41,7 +41,10 @@ export const useTransitStore = defineStore('transit', {
 
   actions: {
     async fetchBusDepartures() {
-      this.busLoading = true
+      // Only show loading if we don't have data yet (avoids flicker on refresh)
+      if (this.busDepartures.length === 0) {
+        this.busLoading = true
+      }
       this.busError = null
 
       try {
@@ -58,7 +61,10 @@ export const useTransitStore = defineStore('transit', {
     },
 
     async fetchTrainDepartures() {
-      this.trainLoading = true
+      // Only show loading if we don't have data yet (avoids flicker on refresh)
+      if (this.trainDepartures.length === 0) {
+        this.trainLoading = true
+      }
       this.trainError = null
 
       try {

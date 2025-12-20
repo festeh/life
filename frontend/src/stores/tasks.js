@@ -72,7 +72,10 @@ export const useTasksStore = defineStore('tasks', {
 
   actions: {
     async fetchTasks() {
-      this.loading = true
+      // Only show loading if we don't have data yet (avoids flicker on refresh)
+      if (this.tasks.length === 0) {
+        this.loading = true
+      }
       this.error = null
       try {
         this.tasks = await tasksService.getTasks()
