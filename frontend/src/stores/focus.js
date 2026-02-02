@@ -1,28 +1,6 @@
 import { defineStore } from 'pinia'
 import { focusService } from '@/services/focus.service'
 
-function mergeIntervals(history) {
-  const intervals = history.map(record => {
-    const start = new Date(record.timestamp).getTime()
-    const end = start + (record.duration || 0) * 1000
-    return [start, Math.max(start, end)]
-  })
-
-  intervals.sort((a, b) => a[0] - b[0])
-
-  const merged = []
-  for (const [start, end] of intervals) {
-    const last = merged[merged.length - 1]
-    if (last && start <= last[1]) {
-      last[1] = Math.max(last[1], end)
-    } else {
-      merged.push([start, end])
-    }
-  }
-
-  return merged
-}
-
 export const useFocusStore = defineStore('focus', {
   state: () => ({
     history: [],
@@ -32,54 +10,45 @@ export const useFocusStore = defineStore('focus', {
   }),
 
   getters: {
-    mergedSessions: (state) => mergeIntervals(state.history),
-
     // Get today's focus count
-    todayFocuses() {
+    todayFocuses: (state) => {
       const today = new Date()
       today.setHours(0, 0, 0, 0)
-      const tomorrow = new Date(today)
-      tomorrow.setDate(tomorrow.getDate() + 1)
-      return this.mergedSessions.filter(([start]) => {
-        return start >= today.getTime() && start < tomorrow.getTime()
+      return state.history.filter(record => {
+        const recordDate = new Date(record.timestamp)
+        recordDate.setHours(0, 0, 0, 0)
+        return recordDate.getTime() === today.getTime()
       }).length
     },
 
     // Get this week's focus count (last 7 days)
-    weekFocuses() {
+    weekFocuses: (state) => {
       const weekAgo = new Date()
       weekAgo.setDate(weekAgo.getDate() - 7)
       weekAgo.setHours(0, 0, 0, 0)
-      return this.mergedSessions.filter(([start]) => {
-        return start >= weekAgo.getTime()
+      return state.history.filter(record => {
+        return new Date(record.timestamp) >= weekAgo
       }).length
     },
 
     // Get history grouped by day and hour for heatmap
     // Returns: { 'YYYY-MM-DD': { 0: count, 1: count, ..., 23: count } }
-    historyByDayAndHour() {
+    historyByDayAndHour: (state) => {
       const grouped = {}
 
-      for (const [start, end] of this.mergedSessions) {
-        // Walk each hour this session touches
-        const startDate = new Date(start)
-        const hourStart = new Date(startDate)
-        hourStart.setMinutes(0, 0, 0)
+      state.history.forEach(record => {
+        const date = new Date(record.timestamp)
+        const dateKey = date.toISOString().split('T')[0]
+        const hour = date.getHours()
 
-        for (let t = hourStart.getTime(); t < end; t += 3600000) {
-          const d = new Date(t)
-          const dateKey = d.toISOString().split('T')[0]
-          const hour = d.getHours()
-
-          if (!grouped[dateKey]) {
-            grouped[dateKey] = {}
-            for (let h = 0; h < 24; h++) {
-              grouped[dateKey][h] = 0
-            }
+        if (!grouped[dateKey]) {
+          grouped[dateKey] = {}
+          for (let h = 0; h < 24; h++) {
+            grouped[dateKey][h] = 0
           }
-          grouped[dateKey][hour]++
         }
-      }
+        grouped[dateKey][hour]++
+      })
 
       return grouped
     }
