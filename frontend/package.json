@@ -10,17 +10,17 @@
   },
   "dependencies": {
     "@bybas/weather-icons": "^2.0.0",
-    "axios": "^1.7.9",
-    "chart.js": "^4.4.7",
+    "axios": "^1.13.4",
+    "chart.js": "^4.5.1",
     "date-fns": "^4.1.0",
-    "pinia": "^2.2.8",
-    "vue": "^3.5.13",
-    "vue-chartjs": "^5.3.2",
-    "vue-router": "^4.5.0",
+    "pinia": "^3.0.4",
+    "vue": "^3.5.27",
+    "vue-chartjs": "^5.3.3",
+    "vue-router": "^5.0.2",
     "vue3-emoji-picker": "^1.1.8"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.2.1",
-    "vite": "^6.0.6"
+    "@vitejs/plugin-vue": "^6.0.4",
+    "vite": "^7.3.1"
   }
 }
