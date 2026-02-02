@@ -74,8 +74,10 @@
 
       <!-- Tooltip -->
       <div
+        ref="tooltipEl"
         v-if="tooltip.visible"
         class="tooltip"
+        :class="{ 'tooltip-below': tooltip.below }"
         :style="{ left: tooltip.x + 'px', top: tooltip.y + 'px' }"
       >
         <div class="tooltip-day">{{ tooltip.day }}</div>
@@ -90,10 +92,11 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive, onMounted } from 'vue'
+import { ref, computed, reactive, onMounted, nextTick } from 'vue'
 import { useFocusStore } from '@/stores/focus'
 
 const focusStore = useFocusStore()
+const tooltipEl = ref(null)
 
 onMounted(() => {
   focusStore.fetchHistory(7)
@@ -160,6 +163,7 @@ const tooltip = reactive({
   visible: false,
   x: 0,
   y: 0,
+  below: false,
   day: '',
   time: '',
   count: 0
@@ -171,10 +175,20 @@ function showTooltip(event, day, hour) {
 
   tooltip.x = rect.left - container.left + rect.width / 2
   tooltip.y = rect.top - container.top - 8
+  tooltip.below = false
   tooltip.day = day.fullDate
   tooltip.time = `${hour}:00 - ${hour + 1}:00`
   tooltip.count = getCount(day.date, hour)
   tooltip.visible = true
+
+  nextTick(() => {
+    if (!tooltipEl.value) return
+    const tipRect = tooltipEl.value.getBoundingClientRect()
+    if (tipRect.top < container.top) {
+      tooltip.y = rect.bottom - container.top + 8
+      tooltip.below = true
+    }
+  })
 }
 
 function hideTooltip() {
@@ -436,6 +450,10 @@ function hideTooltip() {
   animation: tooltipIn 0.15s ease;
 }
 
+.tooltip-below {
+  transform: translate(-50%, 0%);
+}
+
 @keyframes tooltipIn {
   from {
     opacity: 0;
@@ -445,6 +463,21 @@ function hideTooltip() {
     opacity: 1;
     transform: translate(-50%, -100%);
   }
+}
+
+@keyframes tooltipInBelow {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 10%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0%);
+  }
+}
+
+.tooltip-below {
+  animation: tooltipInBelow 0.15s ease;
 }
 
 .tooltip-day {
